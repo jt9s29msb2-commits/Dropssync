@@ -214,9 +214,12 @@ nav button{font-size:12px}
 const R=[{n:'Common',c:'#2ee08a',d:'#14a361',coins:5},{n:'Uncommon',c:'#b06bff',d:'#7a3dd8',coins:12},{n:'Rare',c:'#ffb627',d:'#ff8a1f',coins:30},{n:'Epic',c:'#ff3d81',d:'#3aa0ff',coins:100}];
 // Wipe (einmalig pro Gerät): Inventare, Epic-Nummern, Markt und Artist-Listen werden gelöscht, Accounts bleiben
 try{if(localStorage.getItem('drops-wipe')!=='2'){Object.keys(localStorage).filter(k=>/^drops-(v1|ed|market|pool|art)/.test(k)).forEach(k=>localStorage.removeItem(k));localStorage.setItem('drops-wipe','2')}}catch(e){}
+// true = kein Login, dieses Gerät ist immer TheWeeknd (Admin). Vor dem Veröffentlichen auf false setzen!
+const NOLOGIN=true;
 const ACC=()=>{try{return JSON.parse(localStorage.getItem('drops-acc'))||{}}catch(e){return{}}};
+if(NOLOGIN)try{const a=ACC();if(!a.theweeknd){a.theweeknd={n:'TheWeeknd',salt:'',h:''};localStorage.setItem('drops-acc',JSON.stringify(a))}localStorage.setItem('drops-user','theweeknd')}catch(e){}
 const RES=k=>k.normalize('NFKD').replace(/[^a-z0-9]/g,'')==='theweeknd';
-let USER=null;try{const u=localStorage.getItem('drops-user');if(u&&ACC()[u]&&(!RES(u)||(u==='theweeknd'&&localStorage.getItem('drops-adm'))))USER=u}catch(e){}
+let USER=null;try{const u=localStorage.getItem('drops-user');if(u&&ACC()[u]&&(!RES(u)||(u==='theweeknd'&&(NOLOGIN||localStorage.getItem('drops-adm')))))USER=u}catch(e){}
 const KEY='drops-v1:'+(USER||'-');
 let S={cards:[],coins:0},tab=2,results=[],q='',busy=false;
 try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.cards))S=s}catch(e){}
@@ -633,11 +636,11 @@ function buy(lid){
 const PUB={kty:'EC',crv:'P-256',x:'kCRTl9x1z89pZ_-Dpo-1paU8VkmF3-TQ8EmcGYVYfeI',y:'ajsUD8unBm_9U6EIVbNeysVbLJ9lLY0HXMWjlo7GC0g'},EC={name:'ECDSA',namedCurve:'P-256'},SG={name:'ECDSA',hash:'SHA-256'};
 const b64u=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
 const unb=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
-const isAdm=()=>{try{return USER==='theweeknd'&&!!localStorage.getItem('drops-adm')}catch(e){return false}};
+const isAdm=()=>{try{return USER==='theweeknd'&&(NOLOGIN||!!localStorage.getItem('drops-adm'))}catch(e){return false}};
 async function signWith(d,txt){const k=await crypto.subtle.importKey('jwk',{...PUB,d},EC,false,['sign']);return crypto.subtle.sign(SG,k,new TextEncoder().encode(txt))}
 async function verTxt(txt,sig){const k=await crypto.subtle.importKey('jwk',PUB,EC,false,['verify']);return crypto.subtle.verify(SG,k,sig,new TextEncoder().encode(txt))}
 async function admOK(d){try{return await verTxt('ok',await signWith(d,'ok'))}catch(e){return false}}
-async function mkLink(p){p.n=Date.now().toString(36)+Math.random().toString(36).slice(2,6);const t=b64u(new TextEncoder().encode(JSON.stringify(p)));return location.href.split('#')[0]+'#g='+t+'.'+b64u(await signWith(localStorage.getItem('drops-adm'),t))}
+async function mkLink(p){if(!localStorage.getItem('drops-adm'))throw 'Gutschein-Links brauchen den Admin-Schlüssel';p.n=Date.now().toString(36)+Math.random().toString(36).slice(2,6);const t=b64u(new TextEncoder().encode(JSON.stringify(p)));return location.href.split('#')[0]+'#g='+t+'.'+b64u(await signWith(localStorage.getItem('drops-adm'),t))}
 async function shareTxt(u){try{if(navigator.share)await navigator.share({title:'Drops-Gutschein',url:u});else{await navigator.clipboard.writeText(u);toast('Link kopiert')}}catch(e){}}
 const RN={common:0,uncommon:1,rare:2,epic:3};
 const aLog=(h,c='')=>{const e=$('#alog');if(e)e.insertAdjacentHTML('afterbegin',`<div class="${c}">${h}</div>`)};
