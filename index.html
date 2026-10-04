@@ -146,6 +146,13 @@ header .hs:last-child{cursor:pointer}
 .chs{display:flex;gap:8px;overflow-x:auto;margin-bottom:14px}
 .chs .chip{flex:none;border:0;color:var(--ink);font-family:inherit;cursor:pointer}.chs .chip.on{background:var(--ink);color:#2a0f1a}
 .card video{width:100%;height:100%;object-fit:cover;display:block}
+@keyframes rb{0%,100%{box-shadow:0 0 44px 4px #ff3d3d}17%{box-shadow:0 0 44px 4px #ffb627}33%{box-shadow:0 0 44px 4px #2ee08a}50%{box-shadow:0 0 44px 4px #3aa0ff}67%{box-shadow:0 0 44px 4px #b06bff}83%{box-shadow:0 0 44px 4px #ff3d81}}
+.frame[data-r="2"]{animation:none;box-shadow:0 0 48px 2px var(--c1)}
+.frame[data-r="3"]{background:conic-gradient(from var(--a),#ff3d3d,#ffb627,#2ee08a,#3aa0ff,#b06bff,#ff3d3d);animation:spin 4s linear infinite,rb 6s linear infinite}
+#ov .frame[data-r="2"]{animation:flip .7s cubic-bezier(.2,.8,.2,1)}
+#ov .frame[data-r="3"]{animation:spin 4s linear infinite,rb 6s linear infinite,flip .7s cubic-bezier(.2,.8,.2,1) 1}
+.tile{box-shadow:0 0 14px -2px var(--c1)}.tile[data-r="3"]{animation:rb 6s linear infinite}
+.dropm.ep{background:conic-gradient(#ff3d3d,#ffb627,#2ee08a,#3aa0ff,#b06bff,#ff3d3d)}
 </style>
 </head>
 <body>
@@ -155,7 +162,7 @@ header .hs:last-child{cursor:pointer}
 <nav>
 <button id="t2"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>Map</button>
 <button id="t1"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="12" height="14" rx="2"/><path d="M8 3h10a2 2 0 0 1 2 2v12"/></svg>Sammlung</button>
-<button id="t0"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></svg>Suchen</button>
+<button id="t0"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="m16 16 5 5"/></svg>Markt</button>
 <button id="t4"><svg viewBox="0 0 24 24"><path d="M3 8l9-5 9 5v8l-9 5-9-5zM3 8l9 5 9-5M12 13v8"/></svg>Boxen</button>
 <button id="t3"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profil</button>
 </nav>
@@ -164,7 +171,7 @@ header .hs:last-child{cursor:pointer}
 <div id="toast"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
-const R=[{n:'Gewöhnlich',c:'#9aa3ad',d:'#5d6670',coins:5},{n:'Selten',c:'#3aa0ff',d:'#1a56b8',coins:10},{n:'Episch',c:'#b06bff',d:'#ff7ad9',coins:25},{n:'Legendär',c:'#ffb627',d:'#ff6a3d',coins:60}];
+const R=[{n:'Common',c:'#2ee08a',d:'#14a361',coins:5},{n:'Uncommon',c:'#b06bff',d:'#7a3dd8',coins:12},{n:'Rare',c:'#ffb627',d:'#ff8a1f',coins:30},{n:'Epic',c:'#ff3d81',d:'#3aa0ff',coins:100}];
 const ACC=()=>{try{return JSON.parse(localStorage.getItem('drops-acc'))||{}}catch(e){return{}}};
 let USER=null;try{const u=localStorage.getItem('drops-user');if(u&&ACC()[u])USER=u}catch(e){}
 const KEY='drops-v1:'+(USER||'-');
@@ -189,33 +196,12 @@ function render(){
   const m=$('#main');
   m.hidden=tab===2;$('#mapwrap').hidden=tab!==2;
   if(tab===2){initMap();return}
-  if(tab===0){
-    const own=new Set(S.cards.map(c=>c.id));
-    m.innerHTML=`<form id="f"><input id="q" type="search" placeholder="Song oder Künstler" value="${esc(q)}" autocomplete="off"><button class="btn" ${busy?'disabled':''}>Suchen</button></form>`+
-    (busy?'<p class="empty">Suche läuft …</p>':results.length?results.map(s=>`<div class="row"><img src="${esc(s.cover)}" alt=""><div class="t"><b>${esc(s.title)}</b><small>${esc(s.artist)}</small></div>${s.preview?`<button class="ghost" data-play="${esc(s.preview)}" aria-label="Vorschau">▶</button>`:''}<button class="btn" style="height:42px" data-get="${s.id}" ${own.has(s.id)?'disabled':''}>${own.has(s.id)?'Gesammelt':'Sammeln'}</button></div>`).join(''):`<p class="empty">${q?'Nichts gefunden. Aktuell gibt es nur die Top-50-Artists jedes Genres.':'Such einen Song oder Künstler und sammle die Karte.'}</p>`);
+  if(tab===0){m.innerHTML=marketHTML();
   }else if(tab===3){m.innerHTML=profileHTML()
   }else if(tab===4){m.innerHTML=boxesHTML();boxInit()
   }else{
     m.innerHTML=S.cards.length?`<div class="grid">${S.cards.map(c=>cardHTML(c,true)).join('')}</div>`:'<p class="empty">Noch keine Karten. Such einen Song und tippe auf Sammeln.</p>';
   }
-}
-
-async function search(term){
-  q=term;busy=true;render();
-  try{
-    const r=await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=song&limit=50&country=de`);
-    const j=await r.json();await loadPool();
-    const nm=Object.values(POOL).flat().map(x=>x.toLowerCase()).filter(x=>x.length>2);
-    results=j.results.filter(x=>x.trackId&&x.artworkUrl100&&(!nm.length||nm.some(n=>x.artistName.toLowerCase().includes(n)))).map(mapSong).slice(0,20);
-  }catch(e){results=[];toast('Suche fehlgeschlagen. Prüfe deine Internetverbindung.')}
-  busy=false;render();
-}
-
-async function collect(id){
-  const s=results.find(x=>x.id===id);
-  if(!s||S.cards.some(c=>c.id===id)){toast('Schon in deiner Sammlung');return}
-  const c={...s,r:await rarOf(s.artist,rarityOf(id)),at:Date.now(),no:1+(Math.imul(id|0,40503)>>>0)%900};
-  addCard(c,`${R[c.r].n}! +${R[c.r].coins} Münzen`);
 }
 
 function showCard(c,msg){$('#msg').textContent=msg||'';$('#big').innerHTML=cardHTML(c,false).replace(' data-open="'+c.id+'"','');const v=CANVAS[c.id]||CANVAS[(c.title+'|'+c.artist).toLowerCase()];if(v)$('#big .card img').outerHTML=`<video src="${esc(v)}" autoplay loop muted playsinline></video>`;$('#ov').classList.add('on')}
@@ -230,8 +216,14 @@ function play(url){
 document.addEventListener('click',e=>{
   const t=e.target;
   const p=t.closest('[data-play]');if(p){e.stopPropagation();play(p.dataset.play);return}
-  const g=t.closest('[data-get]');if(g){collect(+g.dataset.get);return}
+  
   if(t.closest('[data-drop]')){openDrop();return}
+  const bu=t.closest('[data-buy]');if(bu){buy(bu.dataset.buy);return}
+  const sl=t.closest('[data-sell]');if(sl){sell(+sl.dataset.sell);return}
+  const ul=t.closest('[data-unlist]');if(ul){setMkt(mkt().filter(x=>x.lid!==ul.dataset.unlist));render();return}
+  const mm=t.closest('[data-mk]');if(mm){mk=+mm.dataset.mk;render();return}
+  const pk=t.closest('[data-peek]');if(pk){const l=mkt().find(x=>x.lid===pk.dataset.peek);if(l)showCard(l.c,`${l.p} Münzen · von ${l.sn}`);return}
+  const up=t.closest('[data-user]');if(up){const k=up.dataset.user,d=ud(k);view={name:d.name||ACC()[k].n,st:d.st||'',lv:1+Math.floor((d.cards||[]).length/5),show:d.show||[],cards:d.cards||[]};tab=3;render();return}
   const bx=t.closest('[data-box]');if(bx){openBox(bx.dataset.box,bx.dataset.g,bx.dataset.a,+bx.dataset.p);return}
   const bs=t.closest('[data-bgsel]');if(bs){bg=bs.dataset.bgsel;abn=12;render();return}
   if(t.closest('[data-more]')){abn+=12;render();return}
@@ -244,7 +236,7 @@ document.addEventListener('click',e=>{
   const o=t.closest('[data-open]');if(o){const c=[...S.cards,...(view?view.cards:[])].find(x=>x.id===+o.dataset.open);if(c)showCard(c,'');return}
   if(t.closest('#ov')&&!t.closest('.frame')){$('#ov').classList.remove('on');if(audio){audio.pause();audio=null;cur=''}}
 });
-document.addEventListener('submit',e=>{e.preventDefault();const v=$('#q').value.trim();if(v)search(v)});
+document.addEventListener('submit',e=>{e.preventDefault();q=$('#q').value.trim();render()});
 $('#t0').onclick=()=>{tab=0;render()};
 $('#t1').onclick=()=>{tab=1;render()};
 $('#t2').onclick=()=>{tab=2;render()};
@@ -258,7 +250,14 @@ function hashStr(s){let h=2166136261;for(const ch of s)h=Math.imul(h^ch.charCode
 function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
 function dist(a,b){const r=x=>x*Math.PI/180,p=r(b[0]-a[0]),l=r(b[1]-a[1]);const h=Math.sin(p/2)**2+Math.cos(r(a[0]))*Math.cos(r(b[0]))*Math.sin(l/2)**2;return 2*6371000*Math.asin(Math.sqrt(h))}
 function mapSong(x){return{id:x.trackId,title:x.trackName,artist:x.artistName,genre:x.primaryGenreName||'Musik',year:(x.releaseDate||'').slice(0,4),cover:x.artworkUrl100.replace('100x100','600x600'),preview:x.previewUrl||''}}
-function addCard(c,msg){if(c.no===1&&c.title==='After Hours'&&/weeknd/i.test(c.artist)&&USER!=='theweeknd')c.no=2+Math.floor(Math.random()*50);S.cards.unshift(c);S.coins+=R[c.r].coins;save();render();showCard(c,msg)}
+function addCard(c,msg){
+  if(c.r===3){
+    const ah=c.title==='After Hours'&&/weeknd/i.test(c.artist);
+    if(ah&&USER==='theweeknd'&&c.no===1)ED[c.id]=Math.max(ED[c.id]||0,1);
+    else c.no=ED[c.id]=Math.max((ED[c.id]||0)+1,ah?2:1);
+    saveED();
+  }else delete c.no;
+  S.cards.unshift(c);S.coins+=R[c.r].coins;save();render();showCard(c,msg)}
 
 // Drops entstehen aus Tag + Gitterzelle: gleiche Orte zeigen allen Spielern dieselben Drops
 function genDrops(center){
@@ -275,14 +274,14 @@ function genDrops(center){
 function refreshDrops(){
   if(!map)return;
   drops=genDrops(pos||HOME);layer.clearLayers();
-  drops.forEach(d=>L.marker([d.lat,d.lng],{icon:L.divIcon({className:'',html:`<div class="dropm" style="--c1:${R[d.tier].c}"><svg viewBox="0 0 24 24"><path d="M9 3v10.3A3.5 3.5 0 1 0 11 16.5V7h6V3z"/></svg></div>`,iconSize:[44,44]})}).on('click',()=>{sel=d;updateSheet()}).addTo(layer));
+  drops.forEach(d=>L.marker([d.lat,d.lng],{icon:L.divIcon({className:'',html:`<div class="dropm${d.tier===3?' ep':''}" style="--c1:${d.tier===3?R[3].c:'#5b6b8c'}"><svg viewBox="0 0 24 24"><path d="M9 3v10.3A3.5 3.5 0 1 0 11 16.5V7h6V3z"/></svg></div>`,iconSize:[44,44]})}).on('click',()=>{sel=d;updateSheet()}).addTo(layer));
 }
 function updateSheet(){
   const s=$('#sheet');
   if(!sel){s.hidden=true;return}
   const dd=pos?Math.round(dist(pos,[sel.lat,sel.lng])):null,can=test||(dd!==null&&dd<=RADIUS),t=R[sel.tier];
   s.hidden=false;
-  s.innerHTML=`<div class="dot" style="--c1:${t.c}"></div><div class="t"><b>Drop (${t.n})</b><small>${dd===null?'Position wird gesucht …':dd+' m entfernt'}${can?'':`. Komm näher als ${RADIUS} m.`}</small></div><button class="btn" style="height:42px" data-drop ${can&&!dropBusy?'':'disabled'}>Öffnen</button>`;
+  s.innerHTML=`<div class="dot" style="--c1:${sel.tier===3?t.c:'#5b6b8c'}"></div><div class="t"><b>${sel.tier===3?'Epic Drop':'Drop'}</b><small>${dd===null?'Position wird gesucht …':dd+' m entfernt'}${can?'':`. Komm näher als ${RADIUS} m.`}</small></div><button class="btn" style="height:42px" data-drop ${can&&!dropBusy?'':'disabled'}>Öffnen</button>`;
 }
 function setTb(){const b=$('#tb');b.innerHTML='Test<br>'+(test?'an':'aus');b.className=test?'on':''}
 function onPos(p){
@@ -316,7 +315,7 @@ function initMap(){
   }
   setTimeout(()=>map.invalidateSize(),0);
 }
-$('#t3').onclick=()=>{tab=3;render()};
+$('#t3').onclick=()=>{view=null;tab=3;render()};
 // Tagesserie: +1 pro Tag, bei einem verpassten Tag zurück auf 1
 (function(){const t=dayKey(),y=new Date(Date.now()-864e5).toISOString().slice(0,10);if(S.last!==t){S.streak=S.last===y?(S.streak||0)+1:1;S.last=t;save()}})();
 
@@ -374,7 +373,7 @@ async function openDrop(){
       s=mapSong(list[Math.floor(r()*list.length)]);top=a?i+1:0;
     }
     if(own.has(s.id)){toast('Diesen Song hast du schon');return}
-    const c={...s,r:d.first?3:await rarOf(s.artist,d.tier),at:Date.now(),no:d.first?1:1+Math.floor(r()**3*500),top};
+    const c={...s,r:d.first?3:await rarOf(s.artist,d.tier),at:Date.now(),no:d.first?1:0,top};
     S.opened=(S.opened||[]).concat(d.id).slice(-300);
     sel=null;
     addCard(c,d.first?`Dein erster Drop: ${c.title} #1! +${R[c.r].coins} Münzen`:`Drop geöffnet! +${R[c.r].coins} Münzen`);
@@ -385,7 +384,7 @@ async function openDrop(){
 
 // ===== Profil mit Showcase, Inventar und Teilen-Link =====
 S.show=S.show||[];let view=null,edit=false;
-const tile=c=>{const r=R[c.r];return `<div class="tile${edit&&!view&&S.show.includes(c.id)?' pin':''}" style="--c1:${r.c}" data-${edit&&!view?'pin':'open'}="${c.id}"><img src="${esc(c.cover)}" alt="" loading="lazy"><b class="no">${c.no?'#'+c.no:'–'}</b><div class="tt"><b>${esc(c.title)}</b><span class="chip rar" style="--c1:${r.c};--c2:${r.d}">${r.n}</span></div></div>`};
+const tile=c=>{const r=R[c.r];return `<div class="tile${edit&&!view&&S.show.includes(c.id)?' pin':''}" style="--c1:${r.c}" data-r="${c.r}" data-${edit&&!view?'pin':'open'}="${c.id}"><img src="${esc(c.cover)}" alt="" loading="lazy">${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}<div class="tt"><b>${esc(c.title)}</b><span class="chip rar" style="--c1:${r.c};--c2:${r.d}">${r.n}</span></div></div>`};
 function profileHTML(){
   const V=view,cards=V?V.cards:S.cards,name=V?V.name:(S.name||'Spieler'),st=V?V.st:(S.st||'Tippe auf deinen Namen, um Name und Status zu ändern'),lv=V?V.lv:1+Math.floor(S.cards.length/5);
   const show=(V?V.show:S.show).map(id=>cards.find(c=>c.id===id)).filter(Boolean),top=show[0]||cards[0];
@@ -394,7 +393,7 @@ function profileHTML(){
   const inv=cards.slice().sort((a,b)=>b.r-a.r||(a.no||9e9)-(b.no||9e9));
   return `<div class="ph"><div class="av">${top?`<img src="${esc(top.cover)}" alt="">`:''}</div><div class="t" data-name><h2>${esc(name)}</h2><p>Lv. ${lv}${V?'':` · ${S.coins} Münzen`}</p><p>${esc(st)}</p></div>${V?'':`<button class="ghost" data-edit aria-label="Showcase bearbeiten">${edit?'✓':'✎'}</button><button class="ghost" data-share aria-label="Profil teilen">⇪</button>`}</div>
   ${V?'<button class="btn" style="height:44px;width:100%;margin-bottom:16px" data-home>Zurück zu meinem Profil</button>':''}
-  <div class="pcard"><h4>Erfolge</h4><div class="ach"><div><b>${cards.length}</b><small>Karten</small></div><div><b>${cards.filter(c=>c.r===3).length}</b><small>Legendär</small></div><div><b>${Object.keys(by).length}</b><small>Artists</small></div></div></div>
+  <div class="pcard"><h4>Erfolge</h4><div class="ach"><div><b>${cards.length}</b><small>Karten</small></div><div><b>${cards.filter(c=>c.r===3).length}</b><small>Epic</small></div><div><b>${Object.keys(by).length}</b><small>Artists</small></div></div></div>
   <div class="pcard"><h4>Artist-Badges</h4>${arts.length?`<div class="bds">${arts.map(([a,l])=>`<div class="bd"><img src="${esc(l[0].cover)}" alt=""><small>${esc(a)} ×${l.length}</small></div>`).join('')}</div>`:'<p class="empty" style="padding:8px">Sammle Songs, um Badges zu bekommen.</p>'}</div>
   <div class="pcard"><h4>Showcase</h4>${show.length?`<div class="g3">${show.map(tile).join('')}</div>`:`<p class="empty" style="padding:8px">${V?'Keine Songs in der Showcase.':'Tippe auf ✎ und wähle bis zu 6 Songs aus.'}</p>`}</div>
   <div class="pcard"><h4>Inventar${edit&&!V?' – tippe zum Anpinnen':''}</h4>${inv.length?`<div class="g3">${inv.map(tile).join('')}</div>`:'<p class="empty" style="padding:8px">Noch keine Karten.</p>'}</div>
@@ -455,9 +454,9 @@ function artistInfo(a){
     sc.onerror=()=>done(null);setTimeout(()=>done(null),6000);document.head.appendChild(sc);
   });
 }
-// Seltenheit = Reichweite des Artists (Deezer-Fans als Näherung für Streams). Schwellen: selten / episch / legendär
-const FAN_T=[4e5,1.5e6,5e6],rarFans=f=>f>=FAN_T[2]?3:f>=FAN_T[1]?2:f>=FAN_T[0]?1:0;
-async function rarOf(artist,fallback){const i=await artistInfo(prim(artist));return i.f?rarFans(i.f):fallback}
+// Common/Uncommon/Rare = Reichweite des Artists (Deezer-Fans als Näherung für Streams); Epic (Tier 3) ist nummeriert
+const FAN_T=[1e6,4e6],rarFans=f=>f>=FAN_T[1]?2:f>=FAN_T[0]?1:0;
+async function rarOf(artist,tier){if(tier===3)return 3;const i=await artistInfo(prim(artist));return i.f?rarFans(i.f):Math.min(tier,2)}
 // Canvas-Loops (nur Videos, für die du die Rechte hast): 'songtitel|artist' in Kleinbuchstaben oder iTunes-ID => mp4-Link
 const CANVAS={};
 let bg='Pop',abn=12,boxBusy=false,poolDone=false;
@@ -465,7 +464,7 @@ const boxPrice=r=>r<=5?150:r<=20?100:70,GENRE_PRICE=40;
 const bcard=(k,g,a,p,sub)=>`<div class="box${S.coins<p?' poor':''}" data-box="${k}" data-g="${esc(g)}" data-a="${esc(a)}" data-p="${p}" data-pic="${esc(a||(POOL[g]||[])[0]||'')}"><img alt=""><div class="bsh"></div><div class="bt"><b>${esc(a||g)}</b><small>${sub}</small></div><span class="bp"><i></i>${p}</span></div>`;
 function boxesHTML(){
   const lst=POOL[bg]||[];
-  return `<h2 style="font-size:30px;font-weight:800">Boxen</h2><p class="empty" style="padding:6px 0 12px;text-align:left">Öffne Boxen mit deinen Münzen. Die Seltenheit einer Karte hängt von der Reichweite des Artists ab: je mehr Streams, desto seltener.</p>
+  return `<h2 style="font-size:30px;font-weight:800">Boxen</h2><p class="empty" style="padding:6px 0 12px;text-align:left">Öffne Boxen mit deinen Münzen. Common, Uncommon und Rare hängen von den Streams des Artists ab. Epic-Karten sind nummeriert.</p>
   <div class="bh">Genre-Boxen</div><div class="g2">${GEN.map(([g])=>bcard('g',g,'',GENRE_PRICE,'Zufälliger Top-50-Artist')).join('')}</div>
   <div class="bh" style="margin-top:22px">Artist-Boxen</div><div class="chs">${GEN.map(([g])=>`<button class="chip${g===bg?' on':''}" data-bgsel="${esc(g)}">${esc(g)}</button>`).join('')}</div>
   <div class="g2">${lst.slice(0,abn).map((a,i)=>bcard('a',bg,a,boxPrice(i+1),`#${i+1} in ${esc(bg)}`)).join('')||'<p class="empty">Artists werden geladen …</p>'}</div>${lst.length>abn?'<button class="btn" style="height:44px;width:100%;margin-top:14px" data-more>Mehr Artists</button>':''}`;
@@ -480,20 +479,55 @@ async function openBox(kind,g,a,price){
   boxBusy=true;toast('Box wird geöffnet …');
   try{
     await loadPool();
-    const k=Math.random()*100,tier=kind==='a'?(k<35?0:k<65?1:k<88?2:3):(k<55?0:k<80?1:k<94?2:3),lst=POOL[g]||[];
+    const k=Math.random()*100,tier=kind==='a'?(k<6?3:0):(k<55?0:k<80?1:k<94?2:3),lst=POOL[g]||[];
     if(kind==='g')a=lst[Math.floor(Math.random()*Math.min([50,30,15,5][tier],lst.length||1))]||'';
     const j=await(await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a||g)}&entity=song${a?'&attribute=artistTerm':''}&limit=50&country=de`)).json();
     const own=new Set(S.cards.map(c=>c.id));
     const list=j.results.filter(x=>x.trackId&&x.artworkUrl100&&!own.has(x.trackId)&&(!a||x.artistName.toLowerCase().includes(a.toLowerCase())));
     if(!list.length){toast('Die Box war leer. Deine Münzen bleiben dir.');return}
-    const sg=mapSong(list[Math.floor(Math.random()*list.length)]),c={...sg,r:await rarOf(sg.artist,tier),at:Date.now(),no:1+Math.floor(Math.random()**3*500),top:a?lst.indexOf(a)+1:0};
+    const sg=mapSong(list[Math.floor(Math.random()*list.length)]),c={...sg,r:await rarOf(sg.artist,tier),at:Date.now(),top:a?lst.indexOf(a)+1:0};
     S.coins-=price;
     addCard(c,`${R[c.r].n}! +${R[c.r].coins} Münzen`);
   }catch(e){toast('Box konnte nicht geöffnet werden. Versuch es nochmal.')}
   finally{boxBusy=false}
 }
 
-if(USER){if(!S.init){S.init=1;if(!S.cards.length)S.coins+=200;S.name=S.name||ACC()[USER].n;save()}render();loadShared()}else authUI();
+// ===== Epic-Nummern (fortlaufend pro Song, gilt für alle Accounts auf diesem Gerät) =====
+const ED=(()=>{try{return JSON.parse(localStorage.getItem('drops-ed'))||{}}catch(e){return{}}})();
+const saveED=()=>{try{localStorage.setItem('drops-ed',JSON.stringify(ED))}catch(e){}};
+
+// ===== Markt: Angebote und Spieler suchen =====
+const mkt=()=>{try{return JSON.parse(localStorage.getItem('drops-market'))||[]}catch(e){return[]}},setMkt=m=>{try{localStorage.setItem('drops-market',JSON.stringify(m))}catch(e){}};
+const ud=k=>{try{return JSON.parse(localStorage.getItem('drops-v1:'+k))||{}}catch(e){return{}}};
+let mk=0;
+const rchip=c=>{const r=R[c.r];return `<span class="chip rar" style="--c1:${r.c};--c2:${r.d}">${r.n}${c.r===3&&c.no?' #'+c.no:''}</span>`};
+function marketHTML(){
+  const M=mkt(),qq=q.toLowerCase(),mine=M.filter(x=>x.seller===USER);
+  const chs=`<div class="chs"><button class="chip${mk?'':' on'}" data-mk="0">Angebote</button><button class="chip${mk?' on':''}" data-mk="1">Meine Karten verkaufen</button></div>`;
+  if(mk)return chs+(S.cards.length?S.cards.map(c=>{const l=mine.find(x=>x.c.id===c.id);return `<div class="row"><img src="${esc(c.cover)}" alt=""><div class="t"><b>${esc(c.title)}</b><small>${esc(c.artist)}</small></div>${rchip(c)}${l?`<button class="btn" style="height:42px;background:var(--panel);color:var(--ink)" data-unlist="${esc(l.lid)}">${l.p} 🪙 ✕</button>`:`<button class="btn" style="height:42px" data-sell="${c.id}">Verkaufen</button>`}</div>`}).join(''):'<p class="empty">Du hast noch keine Karten zum Verkaufen.</p>');
+  const ms=M.filter(x=>!qq||(x.c.title+' '+x.c.artist+' '+x.sn).toLowerCase().includes(qq));
+  const us=Object.entries(ACC()).filter(([k,a])=>k!==USER&&(!qq||a.n.toLowerCase().includes(qq))).slice(0,6);
+  return `<form id="f"><input id="q" type="search" placeholder="Song, Artist oder Spieler" value="${esc(q)}" autocomplete="off"><button class="btn">Suchen</button></form>`+chs+
+  `<div class="bh">Spieler</div>`+(us.length?us.map(([k,a])=>{const d=ud(k),cv=(d.cards||[])[0];return `<div class="row" data-user="${esc(k)}"><img src="${cv?esc(cv.cover):''}" alt=""><div class="t"><b>${esc(d.name||a.n)}</b><small>${(d.cards||[]).length} Karten</small></div></div>`}).join(''):'<p class="empty" style="padding:14px">Kein Spieler gefunden.</p>')+
+  `<div class="bh" style="margin-top:18px">Angebote</div>`+(ms.length?ms.map(x=>`<div class="row"><img src="${esc(x.c.cover)}" alt="" data-peek="${esc(x.lid)}"><div class="t" data-peek="${esc(x.lid)}"><b>${esc(x.c.title)}</b><small>${esc(x.c.artist)} · von ${esc(x.sn)}</small></div>${rchip(x.c)}<button class="btn" style="height:42px" data-buy="${esc(x.lid)}">${x.p} 🪙</button></div>`).join(''):'<p class="empty" style="padding:14px">Keine Angebote gefunden.</p>');
+}
+function sell(id){
+  const c=S.cards.find(x=>x.id===id);if(!c)return;
+  const v=prompt(`Preis für „${c.title}“ in Münzen`,String(R[c.r].coins*4)),p=Math.floor(+v);
+  if(!v||!(p>0)||p>1e7)return;
+  const M=mkt();M.unshift({lid:Date.now()+':'+USER+':'+id,seller:USER,sn:S.name||USER,p,c});setMkt(M);toast('Angebot eingestellt');render();
+}
+function buy(lid){
+  const M=mkt(),i=M.findIndex(x=>x.lid===lid);if(i<0){toast('Schon verkauft');return}
+  const l=M[i];
+  if(l.seller===USER){toast('Das ist dein eigenes Angebot');return}
+  if(S.coins<l.p){toast(`Dir fehlen ${l.p-S.coins} Münzen`);return}
+  if(S.cards.some(c=>c.id===l.c.id)){toast('Diesen Song hast du schon');return}
+  try{const sd=ud(l.seller);sd.cards=(sd.cards||[]).filter(c=>c.id!==l.c.id);sd.show=(sd.show||[]).filter(x=>x!==l.c.id);sd.coins=(sd.coins||0)+l.p;localStorage.setItem('drops-v1:'+l.seller,JSON.stringify(sd))}catch(e){toast('Kauf fehlgeschlagen');return}
+  M.splice(i,1);setMkt(M);S.coins-=l.p;S.cards.unshift({...l.c,at:Date.now()});save();render();showCard(l.c,'Gekauft!');
+}
+
+if(USER){if(!S.v2){S.cards.forEach(c=>{if(!(c.no===1&&c.title==='After Hours')){if(c.r===3)c.r=2;delete c.no}});S.v2=1;save()}if(!S.init){S.init=1;if(!S.cards.length)S.coins+=200;S.name=S.name||ACC()[USER].n;save()}render();loadShared()}else authUI();
 </script>
 </body>
 </html>
