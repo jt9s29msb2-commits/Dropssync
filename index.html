@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#14090d">
+<title>Drops</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@400;600;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+@property --a{syntax:'<angle>';initial-value:0deg;inherits:false}
+:root{--bg:#14090d;--panel:#241119;--ink:#fff3ec;--mute:#b9a3a8;color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:radial-gradient(120% 60% at 50% 0,#4a1220 0,var(--bg) 70%) fixed;color:var(--ink);font-family:'Bricolage Grotesque',system-ui,sans-serif;display:flex;flex-direction:column;padding-top:env(safe-area-inset-top)}
+header{display:flex;justify-content:space-between;align-items:center;padding:14px 18px}
+h1{font-size:26px;font-weight:800;letter-spacing:-.02em}
+.coins{background:var(--panel);border-radius:99px;padding:7px 14px;font-weight:600;display:flex;gap:8px;align-items:center}
+.coins i{width:14px;height:14px;border-radius:50%;background:#ffb627;box-shadow:0 0 10px #ffb627}
+main{flex:1;overflow-y:auto;padding:4px 18px 110px}
+nav{position:fixed;left:0;right:0;bottom:0;display:flex;gap:8px;padding:10px 18px calc(10px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 40%)}
+nav button{flex:1;padding:14px;border:0;border-radius:16px;background:var(--panel);color:var(--mute);font:600 16px inherit;font-family:inherit}
+nav button.on{background:var(--ink);color:#2a0f1a}
+form{display:flex;gap:8px;margin-bottom:16px}
+input{flex:1;min-width:0;padding:14px 16px;border-radius:14px;border:1px solid #4a2a35;background:var(--panel);color:var(--ink);font:16px inherit;font-family:inherit}
+button{cursor:pointer;font-family:inherit}
+.btn{border:0;border-radius:14px;padding:0 18px;background:var(--ink);color:#2a0f1a;font-weight:600;font-size:16px}
+.btn:disabled{opacity:.45}
+.empty{color:var(--mute);text-align:center;padding:48px 20px;line-height:1.5}
+.row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #3a1d28}
+.row img{width:56px;height:56px;border-radius:10px;object-fit:cover;background:var(--panel)}
+.row .t{flex:1;min-width:0}
+.row b,.row small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row small{color:var(--mute);margin-top:2px}
+.ghost{width:42px;height:42px;border-radius:50%;border:1px solid #5a3342;background:none;color:var(--ink)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.frame{--c1:#9aa3ad;--c2:#5d6670;padding:4px;border-radius:32px;background:conic-gradient(from var(--a),var(--c1),var(--c2),var(--c1));box-shadow:0 0 36px -6px var(--c1)}
+.frame[data-r="2"],.frame[data-r="3"]{animation:spin 6s linear infinite}
+@keyframes spin{to{--a:360deg}}
+.card{position:relative;aspect-ratio:3/4.3;border-radius:28px;overflow:hidden;background:#000}
+.card img{width:100%;height:100%;object-fit:cover;display:block}
+.shade{position:absolute;inset:0;background:linear-gradient(transparent 45%,rgba(0,0,0,.92))}
+.info{position:absolute;left:18px;right:18px;bottom:16px}
+.info h3{font-size:22px;line-height:1.15;font-weight:800}
+.info p{color:#d9c8cc;margin:4px 0 10px;font-size:17px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:rgba(255,255,255,.14);backdrop-filter:blur(6px);padding:6px 12px;border-radius:99px;font-size:14px;font-weight:600}
+.chip.rar{background:linear-gradient(90deg,var(--c1),var(--c2));color:#140a0e}
+.play{position:absolute;right:16px;top:16px;width:46px;height:46px;border-radius:50%;border:0;background:rgba(255,255,255,.9);color:#2a0f1a;font-size:16px}
+.mini{border-radius:20px}
+.mini .info{left:10px;right:10px;bottom:10px}
+.mini h3{font-size:14px}.mini p{font-size:12px;margin:2px 0 0}
+.frame.s{padding:3px;border-radius:23px;cursor:pointer}
+#ov{position:fixed;inset:0;background:rgba(10,4,7,.88);display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:9;padding:20px}
+#ov.on{display:flex}
+#ov .frame{width:min(84vw,340px);animation-name:spin,flip;animation-duration:6s,.7s;animation-iteration-count:infinite,1;animation-timing-function:linear,cubic-bezier(.2,.8,.2,1)}
+#ov .frame[data-r="0"],#ov .frame[data-r="1"]{animation:flip .7s cubic-bezier(.2,.8,.2,1)}
+@keyframes flip{from{transform:rotateY(90deg) scale(.8);opacity:0}to{transform:none;opacity:1}}
+#msg{font-size:20px;font-weight:600;text-align:center}
+#toast{position:fixed;left:50%;bottom:100px;transform:translateX(-50%);background:var(--ink);color:#2a0f1a;padding:10px 16px;border-radius:99px;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;z-index:10}
+#toast.on{opacity:1}
+[hidden]{display:none!important}
+#mapwrap{flex:1;position:relative}
+#map{position:absolute;inset:0;background:#1a1014}
+.leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.85) contrast(.9)}
+.leaflet-container{font-family:inherit}
+.leaflet-control-attribution{background:rgba(20,9,13,.7)!important;color:var(--mute)!important}
+.leaflet-control-attribution a{color:var(--mute)!important}
+.dropm{width:34px;height:34px;border-radius:50%;border:3px solid #fff;background:var(--c1);box-shadow:0 0 18px var(--c1);display:grid;place-items:center;font-weight:800;color:#2a0f1a}
+.me{width:16px;height:16px;border-radius:50%;background:#3aa0ff;border:3px solid #fff;box-shadow:0 0 0 8px rgba(58,160,255,.25)}
+#tb{position:absolute;top:10px;right:12px;z-index:500;padding:9px 14px;border-radius:99px;border:0;background:var(--panel);color:var(--ink);font-weight:600}
+#sheet{position:absolute;left:18px;right:18px;bottom:96px;z-index:500;background:var(--panel);border-radius:20px;padding:14px;display:flex;gap:12px;align-items:center;box-shadow:0 8px 30px rgba(0,0,0,.5)}
+#sheet .dot{width:14px;height:14px;border-radius:50%;background:var(--c1);box-shadow:0 0 12px var(--c1)}
+#sheet .t{flex:1;min-width:0}
+#sheet b,#sheet small{display:block}
+#sheet small{color:var(--mute);margin-top:2px}
+@media (prefers-reduced-motion:reduce){.frame,#ov .frame{animation:none!important}}
+</style>
+</head>
+<body>
+<header><h1>Drops</h1><div class="coins"><i></i><span id="coins">0</span></div></header>
+<main id="main"></main>
+<div id="mapwrap" hidden><div id="map"></div><button id="tb"></button><div id="sheet" hidden></div></div>
+<nav><button id="t0">Suchen</button><button id="t1">Sammlung</button><button id="t2">Map</button></nav>
+<div id="ov"><div id="msg"></div><div id="big"></div></div>
+<div id="toast"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+const R=[{n:'Gewöhnlich',c:'#9aa3ad',d:'#5d6670',coins:5},{n:'Selten',c:'#3aa0ff',d:'#1a56b8',coins:10},{n:'Episch',c:'#b06bff',d:'#ff7ad9',coins:25},{n:'Legendär',c:'#ffb627',d:'#ff6a3d',coins:60}];
+const KEY='drops-v1';
+let S={cards:[],coins:0},tab=0,results=[],q='',busy=false;
+try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.cards))S=s}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const $=s=>document.querySelector(s);
+
+// Seltenheit: fest aus der Song-ID berechnet, damit ein Song immer gleich selten bleibt
+function rarityOf(id){const h=Math.imul(id|0,2654435761)>>>0;const n=Math.floor(h/4294967296*100);return n<55?0:n<80?1:n<94?2:3}
+
+function cardHTML(c,mini){
+  const r=R[c.r];
+  return `<div class="frame ${mini?'s':''}" data-r="${c.r}" data-open="${c.id}" style="--c1:${r.c};--c2:${r.d}"><div class="card ${mini?'mini':''}"><img src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}"><div class="shade"></div><div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p>${mini?'':`<div class="chips"><span class="chip rar">${r.n}</span><span class="chip">${esc(c.genre)}</span><span class="chip">${esc(c.year)}</span></div>`}</div>${mini||!c.preview?'':`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">▶</button>`}</div></div>`;
+}
+
+function render(){
+  $('#coins').textContent=S.coins;
+  $('#t0').className=tab===0?'on':'';
+  $('#t1').className=tab===1?'on':'';
+  $('#t2').className=tab===2?'on':'';
+  $('#t1').textContent=`Sammlung (${S.cards.length})`;
+  const m=$('#main');
+  m.hidden=tab===2;$('#mapwrap').hidden=tab!==2;
+  if(tab===2){initMap();return}
+  if(tab===0){
+    const own=new Set(S.cards.map(c=>c.id));
+    m.innerHTML=`<form id="f"><input id="q" type="search" placeholder="Song oder Künstler" value="${esc(q)}" autocomplete="off"><button class="btn" ${busy?'disabled':''}>Suchen</button></form>`+
+    (busy?'<p class="empty">Suche läuft …</p>':results.length?results.map(s=>`<div class="row"><img src="${esc(s.cover)}" alt=""><div class="t"><b>${esc(s.title)}</b><small>${esc(s.artist)}</small></div>${s.preview?`<button class="ghost" data-play="${esc(s.preview)}" aria-label="Vorschau">▶</button>`:''}<button class="btn" style="height:42px" data-get="${s.id}" ${own.has(s.id)?'disabled':''}>${own.has(s.id)?'Gesammelt':'Sammeln'}</button></div>`).join(''):`<p class="empty">${q?'Nichts gefunden. Probier einen anderen Namen.':'Such einen Song oder Künstler und sammle die Karte.'}</p>`);
+  }else{
+    m.innerHTML=S.cards.length?`<div class="grid">${S.cards.map(c=>cardHTML(c,true)).join('')}</div>`:'<p class="empty">Noch keine Karten. Such einen Song und tippe auf Sammeln.</p>';
+  }
+}
+
+async function search(term){
+  q=term;busy=true;render();
+  try{
+    const r=await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=song&limit=20&country=de`);
+    const j=await r.json();
+    results=j.results.filter(x=>x.trackId&&x.artworkUrl100).map(mapSong);
+  }catch(e){results=[];toast('Suche fehlgeschlagen. Prüfe deine Internetverbindung.')}
+  busy=false;render();
+}
+
+function collect(id){
+  const s=results.find(x=>x.id===id);
+  if(!s||S.cards.some(c=>c.id===id)){toast('Schon in deiner Sammlung');return}
+  const c={...s,r:rarityOf(id),at:Date.now()};
+  addCard(c,`${R[c.r].n}! +${R[c.r].coins} Münzen`);
+}
+
+function showCard(c,msg){$('#msg').textContent=msg||'';$('#big').innerHTML=cardHTML(c,false).replace(' data-open="'+c.id+'"','');$('#ov').classList.add('on')}
+function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2200)}
+
+let audio=null,cur='';
+function play(url){
+  if(audio){audio.pause();if(cur===url){audio=null;cur='';return}}
+  cur=url;audio=new Audio(url);audio.play().catch(()=>toast('Vorschau nicht verfügbar'));audio.onended=()=>{audio=null;cur=''};
+}
+
+document.addEventListener('click',e=>{
+  const t=e.target;
+  const p=t.closest('[data-play]');if(p){e.stopPropagation();play(p.dataset.play);return}
+  const g=t.closest('[data-get]');if(g){collect(+g.dataset.get);return}
+  if(t.closest('[data-drop]')){openDrop();return}
+  const o=t.closest('[data-open]');if(o){const c=S.cards.find(x=>x.id===+o.dataset.open);if(c)showCard(c,'');return}
+  if(t.closest('#ov')&&!t.closest('.frame')){$('#ov').classList.remove('on');if(audio){audio.pause();audio=null;cur=''}}
+});
+document.addEventListener('submit',e=>{e.preventDefault();const v=$('#q').value.trim();if(v)search(v)});
+$('#t0').onclick=()=>{tab=0;render()};
+$('#t1').onclick=()=>{tab=1;render()};
+$('#t2').onclick=()=>{tab=2;render()};
+
+// ===== Map mit Drops =====
+const TERMS=['pop','rock','hip hop','jazz','electronic','indie','r&b','latin','soul','reggae','dance','metal','country','k-pop','funk'];
+const HOME=[52.52,13.405],CELL=0.005,RADIUS=50;
+let map,layer,meDot,meCircle,pos=null,test=false,sel=null,drops=[],lastCell='',dropBusy=false;
+const dayKey=()=>new Date().toISOString().slice(0,10);
+function hashStr(s){let h=2166136261;for(const ch of s)h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0}
+function rng(seed){return()=>{seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function dist(a,b){const r=x=>x*Math.PI/180,p=r(b[0]-a[0]),l=r(b[1]-a[1]);const h=Math.sin(p/2)**2+Math.cos(r(a[0]))*Math.cos(r(b[0]))*Math.sin(l/2)**2;return 2*6371000*Math.asin(Math.sqrt(h))}
+function mapSong(x){return{id:x.trackId,title:x.trackName,artist:x.artistName,genre:x.primaryGenreName||'Musik',year:(x.releaseDate||'').slice(0,4),cover:x.artworkUrl100.replace('100x100','600x600'),preview:x.previewUrl||''}}
+function addCard(c,msg){S.cards.unshift(c);S.coins+=R[c.r].coins;save();render();showCard(c,msg)}
+
+// Drops entstehen aus Tag + Gitterzelle: gleiche Orte zeigen allen Spielern dieselben Drops
+function genDrops(center){
+  const cx=Math.floor(center[0]/CELL),cy=Math.floor(center[1]/CELL),done=S.opened||[],out=[];
+  for(let x=cx-1;x<=cx+1;x++)for(let y=cy-1;y<=cy+1;y++)for(let i=0;i<2;i++){
+    const id=`${dayKey()}:${x}:${y}:${i}`;if(done.includes(id))continue;
+    const r=rng(hashStr(id)),lat=(x+r())*CELL,lng=(y+r())*CELL,n=r()*100;
+    out.push({id,lat,lng,tier:n<55?0:n<80?1:n<94?2:3});
+  }
+  return out;
+}
+function refreshDrops(){
+  if(!map)return;
+  drops=genDrops(pos||HOME);layer.clearLayers();
+  drops.forEach(d=>L.marker([d.lat,d.lng],{icon:L.divIcon({className:'',html:`<div class="dropm" style="--c1:${R[d.tier].c}">?</div>`,iconSize:[34,34]})}).on('click',()=>{sel=d;updateSheet()}).addTo(layer));
+}
+function updateSheet(){
+  const s=$('#sheet');
+  if(!sel){s.hidden=true;return}
+  const dd=pos?Math.round(dist(pos,[sel.lat,sel.lng])):null,can=test||(dd!==null&&dd<=RADIUS),t=R[sel.tier];
+  s.hidden=false;
+  s.innerHTML=`<div class="dot" style="--c1:${t.c}"></div><div class="t"><b>Drop (${t.n})</b><small>${dd===null?'Position wird gesucht …':dd+' m entfernt'}${can?'':`. Komm näher als ${RADIUS} m.`}</small></div><button class="btn" style="height:42px" data-drop ${can&&!dropBusy?'':'disabled'}>Öffnen</button>`;
+}
+function setTb(){$('#tb').textContent='Testmodus: '+(test?'an':'aus')}
+function onPos(p){
+  pos=[p.coords.latitude,p.coords.longitude];
+  if(!meDot){
+    meDot=L.marker(pos,{icon:L.divIcon({className:'',html:'<div class="me"></div>',iconSize:[16,16]}),interactive:false}).addTo(map);
+    meCircle=L.circle(pos,{radius:RADIUS,color:'#3aa0ff',weight:1,fillOpacity:.08,interactive:false}).addTo(map);
+    map.setView(pos,16);
+  }else{meDot.setLatLng(pos);meCircle.setLatLng(pos)}
+  const k=Math.floor(pos[0]/CELL)+':'+Math.floor(pos[1]/CELL);
+  if(k!==lastCell){lastCell=k;refreshDrops()}
+  updateSheet();
+}
+function onErr(){test=true;setTb();toast('Standort nicht verfügbar. Erlaube ihn im Browser. Testmodus ist an.');updateSheet()}
+function initMap(){
+  if(!map){
+    map=L.map('map',{zoomControl:false,attributionControl:false}).setView(HOME,16);
+    L.control.attribution({position:'topleft',prefix:false}).addTo(map);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{maxZoom:19,attribution:'© OpenStreetMap'}).addTo(map);
+    layer=L.layerGroup().addTo(map);
+    map.on('click',()=>{sel=null;updateSheet()});
+    $('#tb').onclick=()=>{test=!test;setTb();updateSheet()};
+    setTb();refreshDrops();
+    if('geolocation' in navigator)navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true,maximumAge:5000});
+    else onErr();
+  }
+  setTimeout(()=>map.invalidateSize(),0);
+}
+async function openDrop(){
+  const d=sel;if(!d||dropBusy)return;
+  dropBusy=true;updateSheet();
+  try{
+    const r=rng(hashStr(d.id+'s')),term=TERMS[Math.floor(r()*TERMS.length)];
+    const j=await(await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(term)}&entity=song&limit=50&country=de`)).json();
+    const own=new Set(S.cards.map(c=>c.id));
+    const list=j.results.filter(x=>x.trackId&&x.artworkUrl100&&!own.has(x.trackId));
+    if(!list.length){toast('Dieser Drop ist leer');return}
+    const c={...mapSong(list[Math.floor(r()*list.length)]),r:d.tier,at:Date.now()};
+    S.opened=(S.opened||[]).concat(d.id).slice(-300);
+    sel=null;
+    addCard(c,`Drop geöffnet! +${R[c.r].coins} Münzen`);
+    refreshDrops();
+  }catch(e){toast('Drop konnte nicht geöffnet werden. Versuch es nochmal.')}
+  finally{dropBusy=false;updateSheet()}
+}
+render();
+</script>
+</body>
+</html>
