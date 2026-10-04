@@ -153,12 +153,22 @@ header .hs:last-child{cursor:pointer}
 #ov .frame[data-r="3"]{animation:spin 4s linear infinite,rb 6s linear infinite,flip .7s cubic-bezier(.2,.8,.2,1) 1}
 .tile{box-shadow:0 0 14px -2px var(--c1)}.tile[data-r="3"]{animation:rb 6s linear infinite}
 .dropm.ep{background:conic-gradient(#ff3d3d,#ffb627,#2ee08a,#3aa0ff,#b06bff,#ff3d3d)}
+#map{background:#1b1b1d}
+#map.osm .leaflet-tile-pane{filter:invert(1) hue-rotate(180deg) brightness(.72) contrast(.92) saturate(.75)}
+.leaflet-control-attribution{background:rgba(20,20,22,.7)!important;color:#777!important}.leaflet-control-attribution a{color:#777!important}
+.dropm{box-shadow:0 0 16px -2px var(--c1)}
+#scan{top:auto;right:auto;left:50%;bottom:16px;transform:translateX(-50%);width:auto;height:56px;padding:0 36px;border-radius:99px;background:rgba(22,22,24,.94);color:#9a9ca3;font-size:20px;font-weight:600;white-space:nowrap}
+#loc{top:auto;right:auto;left:14px;bottom:16px;width:56px;height:56px;border-radius:18px}
+#shop{position:absolute;z-index:500;right:14px;bottom:16px;width:62px;height:62px;border:0;border-radius:18px;background:#17181c;color:var(--ink);font-size:13px;font-weight:600;font-family:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:0 3px 10px rgba(0,0,0,.4)}
+#shop svg{width:26px;height:26px;fill:none;stroke:#4ade80;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#sheet{bottom:88px}
+.plus{width:22px;height:22px;border-radius:50%;background:#ffb627;color:#14090d;font-style:normal;font-weight:800;display:grid;place-items:center}
 </style>
 </head>
 <body>
-<header><div class="hs"><span>🔥 <b id="streak">1</b></span><span id="lv">Lv. 1</span></div><div class="hs"><span><i></i><b id="coins">0</b></span></div></header>
+<header><div class="hs"><span>🔥 <b id="streak">1</b></span><span><svg viewBox="0 0 24 24" width="22" height="22" fill="#2ee08a"><path d="M3 18h18l1-11-5 4-5-7-5 7-5-4z"/></svg><b id="lv">Lv. 1</b></span></div><div class="hs"><span><i></i><b id="coins">0</b><em class="plus">+</em></span></div></header>
 <main id="main"></main>
-<div id="mapwrap" hidden><div id="map"></div><button id="tb"></button><button id="loc" aria-label="Meine Position"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></button><button id="scan" aria-label="Gebiet scannen"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="2"/><path d="M7.8 7.8a6 6 0 0 0 0 8.4M16.2 7.8a6 6 0 0 1 0 8.4M4.9 4.9a10 10 0 0 0 0 14.2M19.1 4.9a10 10 0 0 1 0 14.2"/></svg></button><div id="sheet" hidden></div></div>
+<div id="mapwrap" hidden><div id="map"></div><button id="tb"></button><button id="loc" aria-label="Meine Position"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></button><button id="scan" aria-label="Gebiet scannen">Gebiet scannen</button><button id="shop" aria-label="Shop"><svg viewBox="0 0 24 24"><path d="M4 10v10h16V10M3 10l2-6h14l2 6zM9 20v-5h6v5"/></svg>Shop</button><div id="sheet" hidden></div></div>
 <nav>
 <button id="t2"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>Map</button>
 <button id="t1"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="12" height="14" rx="2"/><path d="M8 3h10a2 2 0 0 1 2 2v12"/></svg>Sammlung</button>
@@ -265,7 +275,7 @@ function genDrops(center){
   for(let x=cx-1;x<=cx+1;x++)for(let y=cy-1;y<=cy+1;y++)for(let i=0;i<2;i++){
     const id=`${dayKey()}:${x}:${y}:${i}`;if(done.includes(id))continue;
     const r=rng(hashStr(id)),lat=(x+r())*CELL,lng=(y+r())*CELL,n=r()*100;
-    out.push({id,lat,lng,tier:n<55?0:n<80?1:n<94?2:3});
+    out.push({id,lat,lng,tier:n<55?0:n<80?1:n<99.9?2:3});
   }
   (S.scans||[]).forEach(d=>{if(!done.includes(d.id))out.push(d)});
   if(USER==='theweeknd'&&(pos||test)&&!done.includes('first')){S.first=S.first||{lat:center[0]+.0002,lng:center[1]+.0002};out.push({id:'first',...S.first,tier:3,first:1})}
@@ -274,14 +284,14 @@ function genDrops(center){
 function refreshDrops(){
   if(!map)return;
   drops=genDrops(pos||HOME);layer.clearLayers();
-  drops.forEach(d=>L.marker([d.lat,d.lng],{icon:L.divIcon({className:'',html:`<div class="dropm${d.tier===3?' ep':''}" style="--c1:${d.tier===3?R[3].c:'#5b6b8c'}"><svg viewBox="0 0 24 24"><path d="M9 3v10.3A3.5 3.5 0 1 0 11 16.5V7h6V3z"/></svg></div>`,iconSize:[44,44]})}).on('click',()=>{sel=d;updateSheet()}).addTo(layer));
+  drops.forEach(d=>L.marker([d.lat,d.lng],{icon:L.divIcon({className:'',html:`<div class="dropm${d.tier===3?' ep':''}" style="--c1:${gcol(d)}"><svg viewBox="0 0 24 24"><path d="M9 3v10.3A3.5 3.5 0 1 0 11 16.5V7h6V3z"/></svg></div>`,iconSize:[44,44]})}).on('click',()=>{sel=d;updateSheet()}).addTo(layer));
 }
 function updateSheet(){
   const s=$('#sheet');
   if(!sel){s.hidden=true;return}
   const dd=pos?Math.round(dist(pos,[sel.lat,sel.lng])):null,can=test||(dd!==null&&dd<=RADIUS),t=R[sel.tier];
   s.hidden=false;
-  s.innerHTML=`<div class="dot" style="--c1:${sel.tier===3?t.c:'#5b6b8c'}"></div><div class="t"><b>${sel.tier===3?'Epic Drop':'Drop'}</b><small>${dd===null?'Position wird gesucht …':dd+' m entfernt'}${can?'':`. Komm näher als ${RADIUS} m.`}</small></div><button class="btn" style="height:42px" data-drop ${can&&!dropBusy?'':'disabled'}>Öffnen</button>`;
+  s.innerHTML=`<div class="dot" style="--c1:${gcol(sel)}"></div><div class="t"><b>${sel.tier===3?'Epic Drop':'Drop'} · ${dropGenre(sel)}</b><small>${dd===null?'Position wird gesucht …':dd+' m entfernt'}${can?'':`. Komm näher als ${RADIUS} m.`}</small></div><button class="btn" style="height:42px" data-drop ${can&&!dropBusy?'':'disabled'}>Öffnen</button>`;
 }
 function setTb(){const b=$('#tb');b.innerHTML='Test<br>'+(test?'an':'aus');b.className=test?'on':''}
 function onPos(p){
@@ -348,7 +358,7 @@ function finishScan(c){
   const n=3+Math.floor(Math.random()*3),add=[];
   for(let i=0;i<n;i++){
     const a=Math.random()*6.283,d=20+Math.random()*(SCAN_R-20),k=Math.random()*100;
-    add.push({id:`scan:${Date.now()}:${i}`,lat:c[0]+Math.sin(a)*d/111320,lng:c[1]+Math.cos(a)*d/(111320*Math.cos(c[0]*Math.PI/180)),tier:k<50?0:k<78?1:k<94?2:3});
+    add.push({id:`scan:${Date.now()}:${i}`,lat:c[0]+Math.sin(a)*d/111320,lng:c[1]+Math.cos(a)*d/(111320*Math.cos(c[0]*Math.PI/180)),tier:k<50?0:k<78?1:k<99.9?2:3});
   }
   S.scans=(S.scans||[]).concat(add).slice(-40);save();refreshDrops();scanning=false;
   toast(`${n} neue Drops gefunden`);
@@ -479,7 +489,7 @@ async function openBox(kind,g,a,price){
   boxBusy=true;toast('Box wird geöffnet …');
   try{
     await loadPool();
-    const k=Math.random()*100,tier=kind==='a'?(k<6?3:0):(k<55?0:k<80?1:k<94?2:3),lst=POOL[g]||[];
+    const k=Math.random()*100,tier=kind==='a'?(k<.1?3:0):(k<55?0:k<80?1:k<99.9?2:3),lst=POOL[g]||[];
     if(kind==='g')a=lst[Math.floor(Math.random()*Math.min([50,30,15,5][tier],lst.length||1))]||'';
     const j=await(await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a||g)}&entity=song${a?'&attribute=artistTerm':''}&limit=50&country=de`)).json();
     const own=new Set(S.cards.map(c=>c.id));
@@ -491,6 +501,12 @@ async function openBox(kind,g,a,price){
   }catch(e){toast('Box konnte nicht geöffnet werden. Versuch es nochmal.')}
   finally{boxBusy=false}
 }
+
+// ===== Marker-Farben nach Genre (Indie läuft über die Alternative-Charts) =====
+const GCOL={'Hip-Hop':'#c25200','Pop':'#0b49b0','Electronic':'#a00014','Alternative':'#10ad66'},GREY='#666b78';
+const dropGenre=d=>d.first?'R&B':GEN[Math.floor(rng(hashStr(d.id+'s'))()*GEN.length)][0];
+const gcol=d=>GCOL[dropGenre(d)]||GREY;
+$('#shop').onclick=()=>{tab=4;render()};
 
 // ===== Epic-Nummern (fortlaufend pro Song, gilt für alle Accounts auf diesem Gerät) =====
 const ED=(()=>{try{return JSON.parse(localStorage.getItem('drops-ed'))||{}}catch(e){return{}}})();
