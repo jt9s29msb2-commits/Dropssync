@@ -207,8 +207,11 @@ nav button{font-size:12px}
 .grid .frame[data-r="3"]{grid-column:1/-1;width:min(100%,320px);justify-self:center}
 .g3{grid-auto-flow:dense}.tile[data-r="3"]{grid-column:span 2;aspect-ratio:3/2.2}
 #ov .frame[data-r="3"]{width:min(92vw,400px)}
-@keyframes holo{to{background-position:300% 0}}
-.frame[data-r="3"] .card::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;mix-blend-mode:color-dodge;opacity:.22;background:linear-gradient(115deg,#ff3d3d,#ffb627,#2ee08a,#3aa0ff,#b06bff,#ff3d3d);background-size:300% 100%;animation:holo 6s linear infinite}
+@keyframes shimmer{0%,78%{transform:translateX(-130%)}100%{transform:translateX(130%)}}
+.frame[data-r="3"] .card::after{content:'';position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(105deg,transparent 42%,rgba(255,255,255,.26) 50%,transparent 58%);transform:translateX(-130%);animation:shimmer 7s ease-in-out infinite}
+.frame[data-r="3"] .card.vid::after{display:none}
+.grid>.frame:nth-child(odd) .card::after,.g3>.tile:nth-child(odd){animation-delay:-3.5s}
+@media (prefers-reduced-motion:reduce){.frame[data-r="3"] .card::after{display:none}}
 #avd{display:flex;gap:10px;align-items:center}#avd .btn{height:46px;padding:0 20px;display:inline-flex;align-items:center;cursor:pointer}
 #avx{height:46px;padding:0 16px;border-radius:14px;border:1px solid #3a3b42;background:none;color:var(--ink);font-weight:600;font-family:inherit}
 </style>
@@ -252,7 +255,7 @@ function rarityOf(id){const h=Math.imul(id|0,2654435761)>>>0;const n=Math.floor(
 
 function cardHTML(c,mini){
   const r=R[c.r];
-  return `<div class="frame ${mini?'s':''}" data-r="${c.r}" data-open="${c.id}" style="--c1:${r.c};--c2:${r.d}"><div class="card ${mini?'mini':''}"><img src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}"><div class="shade"></div>${c.r===4?'<i class="vinyl"></i>':''}${c.no?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p>${mini?'':`<div class="chips"><span class="chip rar">${r.n}</span><span class="chip">${esc(c.genre)}</span><span class="chip">${esc(c.year)}</span>${c.r===4?'<span class="chip">+10 🪙/Std</span>':''}${c.top?`<span class="chip">Top ${c.top}</span>`:''}</div>`}</div>${mini||!c.preview?'':`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">▶</button>`}</div></div>`;
+  return `<div class="frame ${mini?'s':''}" data-r="${c.r}" data-open="${c.id}" style="--c1:${r.c};--c2:${r.d}"><div class="card ${mini?'mini':''}${VK.has(vkey(c))?' vid':''}"><img src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}"><div class="shade"></div>${c.r===4?'<i class="vinyl"></i>':''}${c.no?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p>${mini?'':`<div class="chips"><span class="chip rar">${r.n}</span><span class="chip">${esc(c.genre)}</span><span class="chip">${esc(c.year)}</span>${c.r===4?'<span class="chip">+10 🪙/Std</span>':''}${c.top?`<span class="chip">Top ${c.top}</span>`:''}</div>`}</div>${mini||!c.preview?'':`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">▶</button>`}</div></div>`;
 }
 
 // Vinyl-Fähigkeit: Jede Vinyl in deiner Sammlung spielt 10 Münzen pro Stunde ein (bis zu 24 Std. gesammelt)
@@ -396,21 +399,23 @@ const vidGet=async k=>{const d=await vdb();return new Promise(ok=>{const q=d.tra
 const vidPut=async(k,f)=>{const d=await vdb();return new Promise((ok,no)=>{const t=d.transaction('v','readwrite');t.objectStore('v').put(f,k);t.oncomplete=ok;t.onerror=no})};
 const vidDel=async k=>{const d=await vdb();return new Promise(ok=>{const t=d.transaction('v','readwrite');t.objectStore('v').delete(k);t.oncomplete=ok;t.onerror=ok})};
 const vkey=c=>(c.title+'|'+c.artist).toLowerCase();
+const VK=new Set();
+vdb().then(d=>{const q=d.transaction('v').objectStore('v').getAllKeys();q.onsuccess=()=>{q.result.forEach(k=>VK.add(k));if(VK.size&&tab!==2&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName))render()}}).catch(()=>{});
 async function playVid(c){
   const k=vkey(c);let u=CANVAS[c.id]||CANVAS[k],b=null;
   try{b=await vidGet(k)}catch(e){}
   if(b)u=URL.createObjectURL(b);
   const av=$('#avd');av.hidden=!isAdm();av.dataset.k=k;$('#avx').hidden=!b;
   const im=$('#big .card img');
-  if(u&&im&&curC===c)im.outerHTML=`<video src="${esc(u)}" autoplay loop muted playsinline></video>`;
+  if(u&&im&&curC===c){const cd=im.closest('.card');im.outerHTML=`<video src="${esc(u)}" autoplay loop muted playsinline></video>`;cd.classList.add('vid')}
 }
 $('#avf').addEventListener('change',async e=>{
   const f=e.target.files[0];e.target.value='';
   if(!f||!isAdm())return;
   if(f.size>60e6){toast('Video zu groß (max. 60 MB)');return}
-  try{await vidPut($('#avd').dataset.k,f);showCard(curC,'Video gespeichert')}catch(err){toast('Video konnte nicht gespeichert werden')}
+  try{await vidPut($('#avd').dataset.k,f);VK.add($('#avd').dataset.k);showCard(curC,'Video gespeichert')}catch(err){toast('Video konnte nicht gespeichert werden')}
 });
-$('#avx').onclick=async()=>{if(!isAdm())return;await vidDel($('#avd').dataset.k);showCard(curC,'Video entfernt')};
+$('#avx').onclick=async()=>{if(!isAdm())return;await vidDel($('#avd').dataset.k);VK.delete($('#avd').dataset.k);showCard(curC,'Video entfernt')};
 $('#t3').onclick=()=>{view=null;tab=3;render()};
 // Tagesserie: +1 pro Tag, bei einem verpassten Tag zurück auf 1
 (function(){const t=dayKey(),y=new Date(Date.now()-864e5).toISOString().slice(0,10);if(S.last!==t){S.streak=S.last===y?(S.streak||0)+1:1;S.last=t;save()}})();
