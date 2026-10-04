@@ -187,7 +187,7 @@ let USER=null;try{const u=localStorage.getItem('drops-user');if(u&&ACC()[u])USER
 const KEY='drops-v1:'+(USER||'-');
 let S={cards:[],coins:0},tab=2,results=[],q='',busy=false;
 try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.cards))S=s}catch(e){}
-const save=()=>{if(!USER)return;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const save=()=>{if(!USER)return;if(USER==='theweeknd')S.coins=1e9;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const esc=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const $=s=>document.querySelector(s);
 
@@ -200,7 +200,7 @@ function cardHTML(c,mini){
 }
 
 function render(){
-  $('#coins').textContent=S.coins;
+  $('#coins').textContent=USER==='theweeknd'?'∞':S.coins;
   $('#streak').textContent=S.streak||1;$('#lv').textContent='Lv. '+(1+Math.floor(S.cards.length/5));
   [0,1,2,3,4].forEach(i=>$('#t'+i).className=tab===i?'on':'');
   const m=$('#main');
@@ -401,7 +401,7 @@ function profileHTML(){
   const by={};cards.forEach(c=>(by[c.artist]=by[c.artist]||[]).push(c));
   const arts=Object.entries(by).sort((a,b)=>b[1].length-a[1].length).slice(0,8);
   const inv=cards.slice().sort((a,b)=>b.r-a.r||(a.no||9e9)-(b.no||9e9));
-  return `<div class="ph"><div class="av">${top?`<img src="${esc(top.cover)}" alt="">`:''}</div><div class="t" data-name><h2>${esc(name)}</h2><p>Lv. ${lv}${V?'':` · ${S.coins} Münzen`}</p><p>${esc(st)}</p></div>${V?'':`<button class="ghost" data-edit aria-label="Showcase bearbeiten">${edit?'✓':'✎'}</button><button class="ghost" data-share aria-label="Profil teilen">⇪</button>`}</div>
+  return `<div class="ph"><div class="av">${top?`<img src="${esc(top.cover)}" alt="">`:''}</div><div class="t" data-name><h2>${esc(name)}</h2><p>Lv. ${lv}${V?'':` · ${USER==='theweeknd'?'∞':S.coins} Münzen`}</p><p>${esc(st)}</p></div>${V?'':`<button class="ghost" data-edit aria-label="Showcase bearbeiten">${edit?'✓':'✎'}</button><button class="ghost" data-share aria-label="Profil teilen">⇪</button>`}</div>
   ${V?'<button class="btn" style="height:44px;width:100%;margin-bottom:16px" data-home>Zurück zu meinem Profil</button>':''}
   <div class="pcard"><h4>Erfolge</h4><div class="ach"><div><b>${cards.length}</b><small>Karten</small></div><div><b>${cards.filter(c=>c.r===3).length}</b><small>Epic</small></div><div><b>${Object.keys(by).length}</b><small>Artists</small></div></div></div>
   <div class="pcard"><h4>Artist-Badges</h4>${arts.length?`<div class="bds">${arts.map(([a,l])=>`<div class="bd"><img src="${esc(l[0].cover)}" alt=""><small>${esc(a)} ×${l.length}</small></div>`).join('')}</div>`:'<p class="empty" style="padding:8px">Sammle Songs, um Badges zu bekommen.</p>'}</div>
@@ -543,7 +543,7 @@ function buy(lid){
   M.splice(i,1);setMkt(M);S.coins-=l.p;S.cards.unshift({...l.c,at:Date.now()});save();render();showCard(l.c,'Gekauft!');
 }
 
-if(USER){if(!S.v2){S.cards.forEach(c=>{if(!(c.no===1&&c.title==='After Hours')){if(c.r===3)c.r=2;delete c.no}});S.v2=1;save()}if(!S.init){S.init=1;if(!S.cards.length)S.coins+=200;S.name=S.name||ACC()[USER].n;save()}render();loadShared()}else authUI();
+if(USER){if(USER==='theweeknd')S.coins=1e9;if(!S.v2){S.cards.forEach(c=>{if(!(c.no===1&&c.title==='After Hours')){if(c.r===3)c.r=2;delete c.no}});S.v2=1;save()}if(!S.init){S.init=1;if(!S.cards.length)S.coins+=200;S.name=S.name||ACC()[USER].n;save()}render();loadShared()}else authUI();
 </script>
 </body>
 </html>
