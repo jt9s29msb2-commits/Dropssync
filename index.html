@@ -163,6 +163,32 @@ header .hs:last-child{cursor:pointer}
 #shop svg{width:26px;height:26px;fill:none;stroke:#4ade80;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 #sheet{bottom:88px}
 .plus{width:22px;height:22px;border-radius:50%;background:#ffb627;color:#14090d;font-style:normal;font-weight:800;display:grid;place-items:center}
+#qs{height:50px;padding:0 30px;border-radius:99px;background:#ffb627;color:#14090d;font-size:17px;font-weight:700;border:0}
+@keyframes epicspin{0%{transform:perspective(900px) rotateY(-720deg) scale(.4);opacity:0}55%{opacity:1}80%{transform:perspective(900px) rotateY(24deg) scale(1.08)}100%{transform:perspective(900px) rotateY(0) scale(1)}}
+@keyframes shine{to{transform:translateX(130%)}}
+#ov .frame[data-r="3"]{animation:spin 4s linear infinite,rb 6s linear infinite,epicspin 1.5s cubic-bezier(.2,.8,.2,1) 1}
+#ov .frame[data-r="3"] .card::before{content:'';position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.6) 50%,transparent 65%);transform:translateX(-130%);animation:shine 1.4s 1s ease-out 1}
+#iq{width:100%;flex:none;margin-bottom:12px}
+.cmds{white-space:pre-wrap;font:13px/1.55 ui-monospace,Menlo,monospace;color:var(--ink)}
+.gh{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;font-weight:700;letter-spacing:.08em;font-size:13px;color:var(--mute)}
+.gt{font-size:34px;font-weight:800;line-height:1.1}.gs{color:var(--mute);margin:6px 0 16px}
+.wf{display:flex;gap:3px;align-items:center;height:70px;margin:8px 0}.wf i{flex:1;border-radius:3px;background:#3a3b42}.wf i.on{background:var(--go)}
+.stg{display:flex;justify-content:space-between;margin-bottom:16px;font-size:13px;color:var(--mute);font-weight:600}.stg .on{color:var(--go)}
+.big{height:56px;width:100%;font-size:18px;margin-bottom:12px}
+#sug{border-radius:14px;overflow:hidden;margin:6px 0}
+.sgi{display:block;width:100%;text-align:left;padding:12px 14px;border:0;border-bottom:1px solid #2a2b31;background:var(--panel);color:var(--ink);font-size:16px}
+.skip{width:100%;height:46px;border:1px solid #3a3b42;border-radius:14px;background:none;color:var(--ink);font-weight:600;margin:10px 0 18px}
+.mo{display:flex;gap:12px;align-items:center;width:100%;padding:14px;border:1.5px solid #34353c;border-radius:16px;background:var(--panel);color:var(--ink);font-size:17px;font-weight:600;margin-bottom:10px;text-align:left}
+.mo b{width:30px;height:30px;border-radius:9px;background:#34353c;display:grid;place-items:center;flex:none}
+.mo.ok{border-color:var(--go);background:#10301f}.mo.no{border-color:#ff6b6b;background:#33161a;opacity:.7}
+.gv{width:100%;aspect-ratio:1;border-radius:22px;object-fit:cover;display:block;margin-bottom:14px;transition:filter .5s}
+.gcards{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.gc{background:var(--panel);border-radius:20px;padding:16px;border:0;color:var(--ink);text-align:left}
+.gc b{display:block;font-size:19px;margin-top:6px}.gc small{color:var(--mute)}
+.mem{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.mc{aspect-ratio:1;border:0;border-radius:16px;background:linear-gradient(135deg,#5a1230,#1b1c21);color:var(--mute);font-size:28px;font-weight:800;overflow:hidden;padding:0}
+.mc img{width:100%;height:100%;object-fit:cover;display:block}.mc.up{outline:2px solid var(--go)}
+#alog div{margin:8px 0;font-size:14px;overflow-wrap:anywhere}#alog .ok{color:#2ee08a}#alog .er{color:#ff6b6b}
 </style>
 </head>
 <body>
@@ -177,13 +203,16 @@ header .hs:last-child{cursor:pointer}
 <button id="t3"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profil</button>
 </nav>
 <div id="auth" hidden><h1>Drops</h1><p id="am"></p><input id="au" placeholder="Benutzername" autocomplete="username" maxlength="20"><input id="ap" type="password" placeholder="Passwort (mind. 6 Zeichen)"><button class="btn" id="ago" style="height:50px"></button><button class="ghost" id="asw" style="width:auto;height:42px;border-radius:14px;padding:0 14px"></button></div>
-<div id="ov"><div id="msg"></div><div id="big"></div></div>
+<div id="ov"><div id="msg"></div><div id="big"></div><button id="qs" hidden></button></div>
 <div id="toast"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
 const R=[{n:'Common',c:'#2ee08a',d:'#14a361',coins:5},{n:'Uncommon',c:'#b06bff',d:'#7a3dd8',coins:12},{n:'Rare',c:'#ffb627',d:'#ff8a1f',coins:30},{n:'Epic',c:'#ff3d81',d:'#3aa0ff',coins:100}];
+// Wipe (einmalig pro Gerät): Inventare, Epic-Nummern, Markt und Artist-Listen werden gelöscht, Accounts bleiben
+try{if(localStorage.getItem('drops-wipe')!=='2'){Object.keys(localStorage).filter(k=>/^drops-(v1|ed|market|pool|art)/.test(k)).forEach(k=>localStorage.removeItem(k));localStorage.setItem('drops-wipe','2')}}catch(e){}
 const ACC=()=>{try{return JSON.parse(localStorage.getItem('drops-acc'))||{}}catch(e){return{}}};
-let USER=null;try{const u=localStorage.getItem('drops-user');if(u&&ACC()[u])USER=u}catch(e){}
+const RES=k=>k.normalize('NFKD').replace(/[^a-z0-9]/g,'')==='theweeknd';
+let USER=null;try{const u=localStorage.getItem('drops-user');if(u&&ACC()[u]&&(!RES(u)||(u==='theweeknd'&&localStorage.getItem('drops-adm'))))USER=u}catch(e){}
 const KEY='drops-v1:'+(USER||'-');
 let S={cards:[],coins:0},tab=2,results=[],q='',busy=false;
 try{const s=JSON.parse(localStorage.getItem(KEY));if(s&&Array.isArray(s.cards))S=s}catch(e){}
@@ -208,13 +237,14 @@ function render(){
   if(tab===2){initMap();return}
   if(tab===0){m.innerHTML=marketHTML();
   }else if(tab===3){m.innerHTML=profileHTML()
+  }else if(tab===5&&isAdm()){m.innerHTML=adminHTML()
   }else if(tab===4){m.innerHTML=boxesHTML();boxInit()
   }else{
-    m.innerHTML=S.cards.length?`<div class="grid">${S.cards.map(c=>cardHTML(c,true)).join('')}</div>`:'<p class="empty">Noch keine Karten. Such einen Song und tippe auf Sammeln.</p>';
+    m.innerHTML=invHTML();
   }
 }
 
-function showCard(c,msg){$('#msg').textContent=msg||'';$('#big').innerHTML=cardHTML(c,false).replace(' data-open="'+c.id+'"','');const v=CANVAS[c.id]||CANVAS[(c.title+'|'+c.artist).toLowerCase()];if(v)$('#big .card img').outerHTML=`<video src="${esc(v)}" autoplay loop muted playsinline></video>`;$('#ov').classList.add('on')}
+function showCard(c,msg){$('#msg').textContent=msg||'';$('#big').innerHTML=cardHTML(c,false).replace(' data-open="'+c.id+'"','');const v=CANVAS[c.id]||CANVAS[(c.title+'|'+c.artist).toLowerCase()];if(v)$('#big .card img').outerHTML=`<video src="${esc(v)}" autoplay loop muted playsinline></video>`;const mine=!view&&S.cards.some(x=>x.id===c.id),q=$('#qs');q.hidden=!mine;if(mine){q.textContent=`Quicksell · ${QS[c.r]} Münzen`;q.dataset.qs=c.id}$('#ov').classList.add('on')}
 function toast(t){const e=$('#toast');e.textContent=t;e.classList.add('on');setTimeout(()=>e.classList.remove('on'),2200)}
 
 let audio=null,cur='';
@@ -228,6 +258,13 @@ document.addEventListener('click',e=>{
   const p=t.closest('[data-play]');if(p){e.stopPropagation();play(p.dataset.play);return}
   
   if(t.closest('[data-drop]')){openDrop();return}
+  const qb=t.closest('#qs');if(qb){quick(+qb.dataset.qs);return}
+  if(t.closest('[data-admin]')&&isAdm()){tab=5;render();return}
+  if(t.closest('[data-run]')){const i=$('#acmd'),v=i.value;i.value='';runCmd(v);return}
+  const cp=t.closest('[data-copy]');if(cp){shareTxt(cp.dataset.copy);return}
+  const so=t.closest('[data-sort]');if(so){isort=so.dataset.sort;render();return}
+  const ir=t.closest('[data-irar]');if(ir){irar=+ir.dataset.irar;render();return}
+  const bf=t.closest('#big .frame');if(bf&&bf.dataset.r==='3'){bf.style.animation='none';void bf.offsetWidth;bf.style.animation='';return}
   const bu=t.closest('[data-buy]');if(bu){buy(bu.dataset.buy);return}
   const sl=t.closest('[data-sell]');if(sl){sell(+sl.dataset.sell);return}
   const ul=t.closest('[data-unlist]');if(ul){setMkt(mkt().filter(x=>x.lid!==ul.dataset.unlist));render();return}
@@ -330,14 +367,16 @@ $('#t3').onclick=()=>{view=null;tab=3;render()};
 (function(){const t=dayKey(),y=new Date(Date.now()-864e5).toISOString().slice(0,10);if(S.last!==t){S.streak=S.last===y?(S.streak||0)+1:1;S.last=t;save()}})();
 
 // ===== Top-50-Artists pro Genre (iTunes-Charts) =====
-const GEN=[['Pop',14],['Hip-Hop',18],['Rock',21],['Alternative',20],['R&B',15],['Electronic',7],['Jazz',2],['Country',6],['Latin',12],['Metal',1153],['Reggae',24],['Dance',17],['K-Pop',51]];
+const jsonp=u=>new Promise(res=>{const cb='jp'+Math.random().toString(36).slice(2),sc=document.createElement('script');const done=v=>{delete window[cb];sc.remove();res(v)};window[cb]=done;sc.src=u+(u.includes('?')?'&':'?')+'output=jsonp&callback='+cb;sc.onerror=()=>done(null);setTimeout(()=>done(null),8000);document.head.appendChild(sc)});
+// Deezer-Genre-IDs: globale Top-50-Artist-Charts pro Genre (K-Pop = Asian Music)
+const GEN=[['Pop',132],['Hip-Hop',116],['Rock',152],['Alternative',85],['R&B',165],['Electronic',106],['Jazz',129],['Country',84],['Latin',197],['Metal',464],['Reggae',144],['Dance',113],['K-Pop',16]];
 let POOL={},poolP=null;
 try{POOL=JSON.parse(localStorage.getItem('drops-pool'))||{}}catch(e){}
 const prim=n=>n.split(/ (?:&|feat\.?|ft\.?|x) |, /i)[0].trim();
 function loadPool(){
   return poolP||(poolP=Promise.all(GEN.filter(g=>!(POOL[g[0]]||[]).length).map(async([n,id])=>{
-    try{const j=await(await fetch(`https://itunes.apple.com/de/rss/topsongs/limit=200/genre=${id}/json`)).json();
-      POOL[n]=[...new Set((j.feed.entry||[]).map(e=>prim(e['im:artist'].label)))].slice(0,50)}catch(e){}
+    const j=await jsonp(`https://api.deezer.com/chart/${id}/artists?limit=50`),l=((j&&j.data)||[]).map(x=>x.name);
+    if(l.length)POOL[n]=l.slice(0,50);
   })).then(()=>{try{localStorage.setItem('drops-pool',JSON.stringify(POOL))}catch(e){}}));
 }
 
@@ -364,6 +403,23 @@ function finishScan(c){
   toast(`${n} neue Drops gefunden`);
 }
 
+// ===== Ganze Discography: zufälliges Album des Artists, daraus ein zufälliger Song =====
+const DC={};
+const jg=async u=>(await(await fetch(u)).json()).results||[];
+async function discoSong(a,rnd,own){
+  if(!DC[a]){
+    const ar=await jg(`https://itunes.apple.com/search?term=${encodeURIComponent(a)}&entity=musicArtist&limit=5&country=us`),m=ar.find(x=>x.artistName.toLowerCase()===a.toLowerCase())||ar[0];
+    if(!m)return null;
+    DC[a]=(await jg(`https://itunes.apple.com/lookup?id=${m.artistId}&entity=album&limit=200&country=us`)).filter(x=>x.wrapperType==='collection'&&x.collectionId);
+  }
+  const albs=DC[a].slice();
+  for(let n=0;n<6&&albs.length;n++){
+    const al=albs.splice(Math.floor(rnd()*albs.length),1)[0];
+    const tr=(await jg(`https://itunes.apple.com/lookup?id=${al.collectionId}&entity=song&country=us`)).filter(x=>x.wrapperType==='track'&&x.kind==='song'&&x.trackId&&x.artworkUrl100&&!own.has(x.trackId)&&x.artistName.toLowerCase().includes(a.toLowerCase()));
+    if(tr.length)return mapSong(tr[Math.floor(rnd()*tr.length)]);
+  }
+  return null;
+}
 // ===== Drop öffnen (Artist aus den Top 50 des Genres; Legendär = Top 5, Episch = Top 15 …) =====
 async function openDrop(){
   const d=sel;if(!d||dropBusy)return;
@@ -377,10 +433,10 @@ async function openDrop(){
     }else{
       await loadPool();
       const g=GEN[Math.floor(r()*GEN.length)][0],lst=POOL[g]||[],i=Math.floor(r()*Math.min([50,30,15,5][d.tier],lst.length||1)),a=lst[i];
-      const j=await(await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a||g)}&entity=song${a?'&attribute=artistTerm':''}&limit=50&country=de`)).json();
-      const list=j.results.filter(x=>x.trackId&&x.artworkUrl100&&!own.has(x.trackId)&&(!a||x.artistName.toLowerCase().includes(a.toLowerCase())));
-      if(!list.length){toast('Dieser Drop ist leer');return}
-      s=mapSong(list[Math.floor(r()*list.length)]);top=a?i+1:0;
+      if(!a){toast('Artists werden geladen. Versuch es gleich nochmal.');return}
+      s=await discoSong(a,r,own);
+      if(!s){toast('Dieser Drop ist leer');return}
+      top=i+1;
     }
     if(own.has(s.id)){toast('Diesen Song hast du schon');return}
     const c={...s,r:d.first?3:await rarOf(s.artist,d.tier),at:Date.now(),no:d.first?1:0,top};
@@ -407,6 +463,7 @@ function profileHTML(){
   <div class="pcard"><h4>Artist-Badges</h4>${arts.length?`<div class="bds">${arts.map(([a,l])=>`<div class="bd"><img src="${esc(l[0].cover)}" alt=""><small>${esc(a)} ×${l.length}</small></div>`).join('')}</div>`:'<p class="empty" style="padding:8px">Sammle Songs, um Badges zu bekommen.</p>'}</div>
   <div class="pcard"><h4>Showcase</h4>${show.length?`<div class="g3">${show.map(tile).join('')}</div>`:`<p class="empty" style="padding:8px">${V?'Keine Songs in der Showcase.':'Tippe auf ✎ und wähle bis zu 6 Songs aus.'}</p>`}</div>
   <div class="pcard"><h4>Inventar${edit&&!V?' – tippe zum Anpinnen':''}</h4>${inv.length?`<div class="g3">${inv.map(tile).join('')}</div>`:'<p class="empty" style="padding:8px">Noch keine Karten.</p>'}</div>
+  ${!V&&isAdm()?'<button class="btn" style="height:44px;width:100%;margin-bottom:10px;background:#e8245c;color:#fff" data-admin>Admin-Panel</button>':''}
   ${V?'':'<button class="btn" style="height:44px;width:100%;background:var(--panel);color:var(--ink)" data-logout>Abmelden</button>'}`;
 }
 async function share(){
@@ -439,6 +496,13 @@ function authUI(){
 async function authGo(){
   const n=$('#au').value.trim().slice(0,20),pw=$('#ap').value,k=n.toLowerCase(),a=ACC();
   if(n.length<3||pw.length<6){toast('Name: mind. 3 Zeichen. Passwort: mind. 6 Zeichen.');return}
+  if(RES(k)){
+    if(k!=='theweeknd'){toast('Dieser Name ist reserviert');return}
+    if(!await admOK(pw)){toast('Admin-Schlüssel stimmt nicht');return}
+    const salt=Math.random().toString(36).slice(2);a[k]={n:'TheWeeknd',salt,h:await pwh(salt,pw)};
+    try{localStorage.setItem('drops-acc',JSON.stringify(a));localStorage.setItem('drops-adm',pw);localStorage.setItem('drops-user',k)}catch(e){toast('Konnte nicht gespeichert werden');return}
+    location.reload();return;
+  }
   if(reg){
     if(a[k]){toast('Dieser Name ist schon vergeben');return}
     const salt=Math.random().toString(36).slice(2);a[k]={n,salt,h:await pwh(salt,pw)};
@@ -491,11 +555,10 @@ async function openBox(kind,g,a,price){
     await loadPool();
     const k=Math.random()*100,tier=kind==='a'?(k<.1?3:0):(k<55?0:k<80?1:k<99.9?2:3),lst=POOL[g]||[];
     if(kind==='g')a=lst[Math.floor(Math.random()*Math.min([50,30,15,5][tier],lst.length||1))]||'';
-    const j=await(await fetch(`https://itunes.apple.com/search?term=${encodeURIComponent(a||g)}&entity=song${a?'&attribute=artistTerm':''}&limit=50&country=de`)).json();
-    const own=new Set(S.cards.map(c=>c.id));
-    const list=j.results.filter(x=>x.trackId&&x.artworkUrl100&&!own.has(x.trackId)&&(!a||x.artistName.toLowerCase().includes(a.toLowerCase())));
-    if(!list.length){toast('Die Box war leer. Deine Münzen bleiben dir.');return}
-    const sg=mapSong(list[Math.floor(Math.random()*list.length)]),c={...sg,r:await rarOf(sg.artist,tier),at:Date.now(),top:a?lst.indexOf(a)+1:0};
+    if(!a){toast('Artists werden geladen. Versuch es gleich nochmal.');return}
+    const own=new Set(S.cards.map(c=>c.id)),sg=await discoSong(a,Math.random,own);
+    if(!sg){toast('Die Box war leer. Deine Münzen bleiben dir.');return}
+    const c={...sg,r:await rarOf(sg.artist,tier),at:Date.now(),top:lst.indexOf(a)+1};
     S.coins-=price;
     addCard(c,`${R[c.r].n}! +${R[c.r].coins} Münzen`);
   }catch(e){toast('Box konnte nicht geöffnet werden. Versuch es nochmal.')}
@@ -543,7 +606,131 @@ function buy(lid){
   M.splice(i,1);setMkt(M);S.coins-=l.p;S.cards.unshift({...l.c,at:Date.now()});save();render();showCard(l.c,'Gekauft!');
 }
 
-if(USER){if(USER==='theweeknd')S.coins=1e9;if(!S.v2){S.cards.forEach(c=>{if(!(c.no===1&&c.title==='After Hours')){if(c.r===3)c.r=2;delete c.no}});S.v2=1;save()}if(!S.init){S.init=1;if(!S.cards.length)S.coins+=200;S.name=S.name||ACC()[USER].n;save()}render();loadShared()}else authUI();
+// ===== Admin-Panel (nur TheWeeknd) =====
+// Öffentlicher Schlüssel: prüft Gutscheine. Der private Schlüssel liegt nur bei dir und steht nie in dieser Datei.
+const PUB={kty:'EC',crv:'P-256',x:'kCRTl9x1z89pZ_-Dpo-1paU8VkmF3-TQ8EmcGYVYfeI',y:'ajsUD8unBm_9U6EIVbNeysVbLJ9lLY0HXMWjlo7GC0g'},EC={name:'ECDSA',namedCurve:'P-256'},SG={name:'ECDSA',hash:'SHA-256'};
+const b64u=b=>btoa(String.fromCharCode(...new Uint8Array(b))).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+const unb=s=>Uint8Array.from(atob(s.replace(/-/g,'+').replace(/_/g,'/')),c=>c.charCodeAt(0));
+const isAdm=()=>{try{return USER==='theweeknd'&&!!localStorage.getItem('drops-adm')}catch(e){return false}};
+async function signWith(d,txt){const k=await crypto.subtle.importKey('jwk',{...PUB,d},EC,false,['sign']);return crypto.subtle.sign(SG,k,new TextEncoder().encode(txt))}
+async function verTxt(txt,sig){const k=await crypto.subtle.importKey('jwk',PUB,EC,false,['verify']);return crypto.subtle.verify(SG,k,sig,new TextEncoder().encode(txt))}
+async function admOK(d){try{return await verTxt('ok',await signWith(d,'ok'))}catch(e){return false}}
+async function mkLink(p){p.n=Date.now().toString(36)+Math.random().toString(36).slice(2,6);const t=b64u(new TextEncoder().encode(JSON.stringify(p)));return location.href.split('#')[0]+'#g='+t+'.'+b64u(await signWith(localStorage.getItem('drops-adm'),t))}
+async function shareTxt(u){try{if(navigator.share)await navigator.share({title:'Drops-Gutschein',url:u});else{await navigator.clipboard.writeText(u);toast('Link kopiert')}}catch(e){}}
+const RN={common:0,uncommon:1,rare:2,epic:3};
+const aLog=(h,c='')=>{const e=$('#alog');if(e)e.insertAdjacentHTML('afterbegin',`<div class="${c}">${h}</div>`)};
+const CMDS=`user - Titel #5        Epic #5 an user (Titel oder id:123456)
+user - Titel            Epic mit nächster freier Nummer
+user - Titel rare       Seltenheit: common | uncommon | rare | epic
+coins user +500         Münzen geben (-200 abziehen, =1000 setzen)
+take user - Titel       Karte entziehen
+clear user              Inventar leeren
+inv user                Inventar anzeigen
+users                   Accounts auf diesem Gerät
+drop epic               Drop auf der Map (common | uncommon | rare | epic)
+link user - Titel #5    Gutschein-Link erzwingen
+stats                   Statistik
+help                    Diese Liste
+
+Ist der User nicht auf diesem Gerät, erzeugt das Panel einen
+Gutschein-Link. Der User öffnet ihn eingeloggt und bekommt die Karte.`;
+function adminHTML(){return `<h2 style="font-size:30px;font-weight:800;margin-bottom:12px">Admin-Panel</h2>
+<input id="acmd" placeholder="z.B. jonas - Blinding Lights #5" autocapitalize="off" autocorrect="off" spellcheck="false" style="width:100%;flex:none">
+<button class="btn" data-run style="height:48px;width:100%;margin:10px 0">Ausführen</button>
+<div id="alog"></div><div class="pcard"><h4>Commands</h4><div class="cmds">${esc(CMDS)}</div></div>`}
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='acmd'){e.preventDefault();const v=e.target.value;e.target.value='';runCmd(v)}});
+async function findSong(q){
+  const m=q.match(/^id:(\d+)$/i),l=await jg(m?`https://itunes.apple.com/lookup?id=${m[1]}&country=us`:`https://itunes.apple.com/search?term=${encodeURIComponent(q)}&entity=song&limit=15&country=us`);
+  const ok=l.filter(x=>x.trackId&&x.artworkUrl100),ex=ok.find(x=>x.trackName.toLowerCase()===q.toLowerCase());
+  return ok.length?mapSong(ex||ok[0]):null;
+}
+const store=k=>k===USER?S:ud(k),wr=(k,st)=>{if(k===USER)save();else localStorage.setItem('drops-v1:'+k,JSON.stringify(st))};
+function put(st,c){st.cards=(st.cards||[]).filter(x=>x.id!==c.id);st.cards.unshift(c);if(c.no){ED[c.id]=Math.max(ED[c.id]||0,c.no);saveED()}}
+async function runCmd(line){
+  line=line.trim();if(!line||!isAdm())return;
+  aLog(`<b>&gt; ${esc(line)}</b>`);
+  try{
+    const [w0,...rest]=line.split(/\s+/),w=w0.toLowerCase(),arg=rest.join(' '),A=ACC(),has=k=>k===USER||!!A[k],cnt=k=>(store(k).cards||[]).length;
+    if(w==='help'){aLog(`<div class="cmds">${esc(CMDS)}</div>`)}
+    else if(w==='users'){aLog(Object.keys(A).map(k=>`${esc(A[k].n)}: ${cnt(k)} Karten, ${k===USER?'∞':(ud(k).coins||0)} Münzen`).join('<br>')||'Keine',)}
+    else if(w==='stats'){const ks=Object.keys(A),all=ks.flatMap(k=>store(k).cards||[]);aLog(`${ks.length} Accounts, ${all.length} Karten, ${all.filter(c=>c.r===3).length} Epic`)}
+    else if(w==='inv'){const k=arg.toLowerCase();if(!has(k))throw 'User nicht auf diesem Gerät';aLog((store(k).cards||[]).slice(0,40).map(c=>`${esc(c.title)} (${esc(c.artist)}) ${R[c.r].n}${c.no?' #'+c.no:''}`).join('<br>')||'Leer')}
+    else if(w==='clear'||w==='take'){
+      const m=w==='clear'?[0,arg]:arg.match(/^(\S+)\s+-\s+(.+)$/);if(!m)throw 'Format: take user - Titel';
+      const k=String(m[1]).toLowerCase();if(!has(k))throw 'User nicht auf diesem Gerät';
+      const st=store(k),n0=(st.cards||[]).length,q=w==='clear'?'':m[2].toLowerCase();
+      st.cards=(st.cards||[]).filter(c=>w==='clear'?false:!c.title.toLowerCase().includes(q));st.show=(st.show||[]).filter(id=>st.cards.some(c=>c.id===id));
+      wr(k,st);aLog(`${n0-st.cards.length} Karte(n) entfernt`,'ok');if(k===USER)render();
+    }
+    else if(w==='drop'){
+      const t=RN[arg.toLowerCase()??'epic']??3,c=pos||HOME;
+      S.scans=(S.scans||[]).concat({id:'adm:'+Date.now(),lat:c[0]+.0002,lng:c[1]+.0002,tier:t}).slice(-40);save();if(map)refreshDrops();aLog(`${R[t].n}-Drop auf der Map platziert`,'ok');
+    }
+    else if(w==='coins'){
+      const m=arg.match(/^(\S+)\s+([+\-=]?)(\d+)$/);if(!m)throw 'Format: coins user +500';
+      const k=m[1].toLowerCase(),o=m[2]||'+',v=+m[3],f=x=>o==='='?v:o==='-'?Math.max(0,x-v):x+v;
+      if(has(k)){const st=store(k);st.coins=f(st.coins||0);wr(k,st);aLog(`${esc(k)} hat jetzt ${st.coins} Münzen`,'ok');if(k===USER)render()}
+      else{const u=await mkLink({k:'$',to:k,v,o});aLog(`Gutschein für ${esc(k)}: <button class="btn" style="height:36px" data-copy="${esc(u)}">Link teilen</button>`,'ok')}
+    }
+    else{
+      const force=w==='link',src=force?arg:line,m=src.match(/^(\S+)\s+-\s+(.+)$/);
+      if(!m)throw 'Unbekannter Command. Tippe help.';
+      const k=m[1].toLowerCase();let q=m[2].trim(),r=3,no=0;
+      const nm=q.match(/\s+#(\d+)$/);if(nm){no=+nm[1];q=q.slice(0,nm.index)}
+      const rm=q.match(/\s+(common|uncommon|rare|epic)$/i);if(rm){r=RN[rm[1].toLowerCase()];q=q.slice(0,rm.index)}
+      const s=await findSong(q);if(!s)throw 'Song nicht gefunden';
+      no=r===3?(no||(ED[s.id]||0)+1):0;
+      const c={...s,r,at:Date.now()};if(no)c.no=no;
+      const lbl=`${esc(s.title)} (${esc(s.artist)}) ${R[r].n}${no?' #'+no:''}`;
+      if(!force&&has(k)){const st=store(k);put(st,c);wr(k,st);aLog(`${lbl} an ${esc(k)} gegeben`,'ok');if(k===USER){render();showCard(c,'Admin-Spawn')}}
+      else{if(no){ED[s.id]=Math.max(ED[s.id]||0,no);saveED()}const u=await mkLink({k:'c',to:k,id:s.id,r,no});aLog(`${lbl}: Gutschein für ${esc(k)} <button class="btn" style="height:36px" data-copy="${esc(u)}">Link teilen</button>`,'ok')}
+    }
+  }catch(e){aLog(esc(typeof e==='string'?e:'Fehler. Prüfe Verbindung und Format.'),'er')}
+}
+// Gutschein einlösen: #g=<Daten>.<Signatur>, geprüft mit dem öffentlichen Schlüssel
+async function loadGift(){
+  const m=location.hash.match(/^#g=(.+)\.(.+)$/);if(!m)return;
+  history.replaceState(null,'',location.pathname);
+  try{
+    if(!await verTxt(m[1],unb(m[2]))){toast('Ungültiger Gutschein');return}
+    const g=JSON.parse(new TextDecoder().decode(unb(m[1])));
+    if(g.to!==USER){toast(`Dieser Gutschein ist für ${g.to}`);return}
+    S.red=S.red||[];if(S.red.includes(g.n)){toast('Gutschein schon eingelöst');return}
+    if(g.k==='$'){S.coins=g.o==='='?g.v:g.o==='-'?Math.max(0,S.coins-g.v):S.coins+g.v;S.red.push(g.n);save();render();toast('Münzen erhalten');return}
+    const x=(await jg(`https://itunes.apple.com/lookup?id=${g.id}&country=us`)).find(y=>y.trackId);if(!x)throw 0;
+    const c={...mapSong(x),r:g.r,at:Date.now()};if(g.no)c.no=g.no;
+    put(S,c);S.red.push(g.n);save();render();showCard(c,'Geschenk erhalten!');
+  }catch(e){toast('Gutschein konnte nicht eingelöst werden')}
+}
+// ===== Quicksell =====
+const QS=[10,25,60,200];
+function quick(id){
+  const c=S.cards.find(x=>x.id===id);if(!c)return;
+  const v=QS[c.r];
+  if(c.r===3&&!confirm(`Epic „${c.title}“${c.no?' #'+c.no:''} wirklich für ${v} Münzen verkaufen?`))return;
+  S.cards=S.cards.filter(x=>x.id!==id);S.show=(S.show||[]).filter(x=>x!==id);S.coins+=v;
+  setMkt(mkt().filter(x=>!(x.seller===USER&&x.c.id===id)));
+  save();$('#ov').classList.remove('on');render();toast(`+${v} Münzen`);
+}
+// ===== Inventar: Suche, Sortierung, Seltenheits-Filter =====
+let iq='',isort='new',irar=-1;
+const SORTS=[['new','Neueste'],['rar','Seltenheit'],['art','Artist A–Z'],['ttl','Titel A–Z'],['no','Epic-Nr.']];
+function invGrid(){
+  const qq=iq.toLowerCase(),big=9e9;
+  const cmp={new:(a,b)=>(b.at||0)-(a.at||0),rar:(a,b)=>b.r-a.r||(a.no||big)-(b.no||big),art:(a,b)=>a.artist.localeCompare(b.artist)||a.title.localeCompare(b.title),ttl:(a,b)=>a.title.localeCompare(b.title),no:(a,b)=>(a.no||big)-(b.no||big)}[isort];
+  const l=S.cards.filter(c=>(irar<0||c.r===irar)&&(!qq||(c.artist+' '+c.title).toLowerCase().includes(qq))).sort(cmp);
+  return l.length?`<div class="grid">${l.map(c=>cardHTML(c,true)).join('')}</div>`:'<p class="empty">Keine Karten gefunden.</p>';
+}
+function invHTML(){
+  if(!S.cards.length)return '<p class="empty">Noch keine Karten. Öffne Drops auf der Map oder Boxen im Shop.</p>';
+  return `<input id="iq" type="search" placeholder="Artist oder Song suchen" value="${esc(iq)}" autocomplete="off">
+  <div class="chs">${SORTS.map(([k,n])=>`<button class="chip${isort===k?' on':''}" data-sort="${k}">${n}</button>`).join('')}</div>
+  <div class="chs">${['Alle',...R.map(r=>r.n)].map((n,i)=>`<button class="chip${irar===i-1?' on':''}" data-irar="${i-1}">${n}</button>`).join('')}</div>
+  <div id="ig">${invGrid()}</div>`;
+}
+document.addEventListener('input',e=>{if(e.target.id==='iq'){iq=e.target.value;$('#ig').innerHTML=invGrid()}});
+
+if(USER){if(USER==='theweeknd')S.coins=1e9;if(!S.v2){S.cards.forEach(c=>{if(!(c.no===1&&c.title==='After Hours')){if(c.r===3)c.r=2;delete c.no}});S.v2=1;save()}if(!S.init){S.init=1;if(!S.cards.length)S.coins+=200;S.name=S.name||ACC()[USER].n;save()}render();loadShared();loadGift()}else authUI();
 </script>
 </body>
 </html>
