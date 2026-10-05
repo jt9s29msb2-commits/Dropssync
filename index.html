@@ -214,6 +214,46 @@ nav button{font-size:12px}
 @media (prefers-reduced-motion:reduce){.frame[data-r="3"] .card::after{display:none}}
 #avd{display:flex;gap:10px;align-items:center}#avd .btn{height:46px;padding:0 20px;display:inline-flex;align-items:center;cursor:pointer}
 #avx{height:46px;padding:0 16px;border-radius:14px;border:1px solid #3a3b42;background:none;color:var(--ink);font-weight:600;font-family:inherit}
+/* ===== Epic-Layout (nach soundmap.gg) + Glow je Seltenheit ===== */
+@keyframes gpulse{0%,100%{opacity:.62}50%{opacity:1}}
+@keyframes chue{to{filter:hue-rotate(360deg)}}
+.frame.ep{--er:9.5%/6.13%;--stops:#2ee08a,#14a361,#9bffc8,#14a361,#2ee08a;--hi:#eafff3;position:relative;isolation:isolate;padding:0;background:none;border-radius:var(--er);box-shadow:none;animation:none}
+.frame.ep[data-r="1"]{--stops:#e04bff,#6a2bff,#e04bff,#6a2bff,#e04bff;--hi:#fff0ff}
+.frame.ep[data-r="2"]{--stops:#ff3d3d,#ffb627,#2ee08a,#3aa0ff,#b06bff,#ff3d81,#ff3d3d;--hi:#fff}
+.frame.ep[data-r="3"]{--stops:#ff3d81,#3aa0ff,#ff3d81,#3aa0ff,#ff3d81;--hi:#ffe6f0}
+.frame.ep::before,.frame.ep::after{content:'';position:absolute;z-index:-1;pointer-events:none;border-radius:var(--er)}
+.frame.ep::before{inset:-5px;background:conic-gradient(from var(--a),var(--stops));filter:blur(11px);animation:spin 6s linear infinite,gpulse 2.6s ease-in-out infinite}
+.frame.ep::after{inset:-2px;background:conic-gradient(from var(--a),transparent 0 78%,var(--hi) 90%,transparent 100%),conic-gradient(from var(--a),var(--stops));animation:spin 6s linear infinite reverse}
+#ov .frame.ep{width:min(92vw,400px,calc((100dvh - 240px)*.645));animation:flip .7s cubic-bezier(.2,.8,.2,1)}
+#ov .frame.ep[data-r="2"],#ov .frame.ep[data-r="3"]{animation:epicspin 1.5s cubic-bezier(.2,.8,.2,1)}
+.frame.ep .card.epic{aspect-ratio:1080/1675;border-radius:var(--er);container-type:inline-size}
+.frame.ep .card.epic .shade{background:linear-gradient(transparent 55%,rgba(0,0,0,.55) 74%,rgba(0,0,0,.94) 100%)}
+.frame.ep .card.epic .info{left:9.2cqw;right:9.2cqw;bottom:7.9cqw}
+.frame.ep .card.epic .info h3{font-size:5.8cqw;line-height:1.1;font-weight:800;margin:0 0 2.4cqw;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.frame.ep .card.epic .info p{font-size:4.6cqw;line-height:1.2;font-weight:600;color:rgba(255,255,255,.72);margin:0 11cqw 3.2cqw 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.frame.ep .card.epic .chips{display:flex;flex-wrap:nowrap;gap:2.2cqw;margin-left:-1.1cqw}
+.frame.ep .card.epic .chip{display:inline-flex;align-items:center;gap:1.1cqw;flex:none;height:7.4cqw;padding:0 2.7cqw;border-radius:99px;font-size:3.6cqw;font-weight:800;line-height:1;white-space:nowrap;backdrop-filter:none;-webkit-backdrop-filter:none}
+.frame.ep .card.epic .chip svg{width:3.5cqw;height:3.5cqw;flex:none}
+.frame.ep .card.epic .chip.rar{background:linear-gradient(100deg,var(--c1),var(--c2));color:#fff;text-shadow:0 1px 2px rgba(0,0,0,.25);box-shadow:0 0 2.4cqw -.4cqw var(--c1)}
+.frame.ep[data-r="2"] .card.epic .chip.rar,.frame.ep[data-r="3"] .card.epic .chip.rar{animation:chue 6s linear infinite}
+.frame.ep .card.epic .chip.gen{background:#06173f;color:#2f80ff;flex:0 1 auto;min-width:0}
+.frame.ep .card.epic .chip.gen span{overflow:hidden;text-overflow:ellipsis}
+.frame.ep .card.epic .chip.cnt{background:rgba(58,58,60,.78);color:#a4a4a8}
+.frame.ep .card.epic .play{top:auto;left:auto;right:5.4cqw;bottom:14.8cqw;width:12cqw;height:12cqw;padding:0;border:0;border-radius:50%;background:none;backdrop-filter:none;-webkit-backdrop-filter:none;color:rgba(255,255,255,.72);display:grid;place-items:center}
+.frame.ep .card.epic .play svg{width:6.2cqw;height:6.2cqw;fill:currentColor}
+.frame.ep .card.epic .no{left:auto;right:5cqw;top:5.3cqw;font-size:3.9cqw;line-height:1.2;font-weight:800;padding:1cqw 3.2cqw;background:#fff;color:#000}
+@media (prefers-reduced-motion:reduce){.frame.ep::before,.frame.ep::after,.frame.ep .chip.rar{animation:none!important}}
+/* ===== Glow-Feinschliff nach Video: stärker, mit hellem Lauflicht und Puls ===== */
+@keyframes gbeat{0%,100%{opacity:.78;transform:scale(1)}50%{opacity:1;transform:scale(1.03)}}
+@keyframes rbh{0%,100%{box-shadow:0 0 38px -2px rgba(255,61,61,.6)}17%{box-shadow:0 0 38px -2px rgba(255,182,39,.6)}33%{box-shadow:0 0 38px -2px rgba(46,224,138,.6)}50%{box-shadow:0 0 38px -2px rgba(58,160,255,.6)}67%{box-shadow:0 0 38px -2px rgba(176,107,255,.6)}83%{box-shadow:0 0 38px -2px rgba(255,61,129,.6)}}
+.frame.ep{--gh:rgba(46,224,138,.55);box-shadow:0 0 38px -2px var(--gh)}
+.frame.ep[data-r="1"]{--gh:rgba(176,107,255,.6)}
+.frame.ep[data-r="3"]{--gh:rgba(255,61,129,.55)}
+.frame.ep[data-r="2"]{animation:rbh 6s linear infinite}
+#ov .frame.ep[data-r="2"]{animation:epicspin 1.5s cubic-bezier(.2,.8,.2,1),rbh 6s linear 1.5s infinite}
+.frame.ep::before{inset:-9px;filter:blur(16px) saturate(1.5) brightness(1.15);animation:spin 5s linear infinite,gbeat 2.4s ease-in-out infinite}
+.frame.ep::after{inset:-3px;background:conic-gradient(from var(--a),transparent 0 60%,var(--hi) 86%,#fff 92%,transparent 100%),conic-gradient(from var(--a),var(--stops));animation:spin 4s linear infinite reverse}
+@media (prefers-reduced-motion:reduce){.frame.ep[data-r="2"]{animation:none}}
 </style>
 </head>
 <body>
@@ -253,8 +293,19 @@ const $=s=>document.querySelector(s);
 // Seltenheit: fest aus der Song-ID berechnet, damit ein Song immer gleich selten bleibt
 function rarityOf(id){const h=Math.imul(id|0,2654435761)>>>0;const n=Math.floor(h/4294967296*100);return n<55?0:n<80?1:n<94?2:3}
 
+function epicHTML(c,mini){
+  const r=R[c.r];
+  let n=c.no||0;try{n=Math.max(n,ED[c.id]||0)}catch(e){}
+  const gem='<svg viewBox="0 0 24 24"><path d="M6.5 3h11L22 9l-10 12L2 9z" fill="#fff"/><path d="M2 9h20M9.5 3 8 9l4 12 4-12-1.5-6" fill="none" stroke="#7fbf9a" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+  const note='<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="18" r="3.2"/><circle cx="18" cy="16" r="3.2"/><path d="M9.2 4.2 20.2 2v14h-2V5.6L11.2 7V18h-2z"/></svg>';
+  const cnt='<svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M5 5h14a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3zm2.5 5.5a1.5 1.5 0 0 0 0 3h9a1.5 1.5 0 0 0 0-3z"/></svg>';
+  const tri='<svg viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>';
+  return `<div class="frame ep ${mini?'s':''}" data-r="${c.r}" data-open="${c.id}" style="--c1:${r.c};--c2:${r.d}"><div class="card epic${VK.has(vkey(c))?' vid':''}"><img src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}"><div class="shade"></div>${c.no?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p><div class="chips"><span class="chip rar">${gem}${r.n}</span><span class="chip gen">${note}<span>${esc(c.genre)}</span></span>${n&&c.r===3?`<span class="chip cnt">${cnt}${n}</span>`:''}</div></div>${c.preview?`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${tri}</button>`:''}</div></div>`;
+}
+
 function cardHTML(c,mini){
   const r=R[c.r];
+  if(c.r===3||(c.r<3&&!mini))return epicHTML(c,mini);
   return `<div class="frame ${mini?'s':''}" data-r="${c.r}" data-open="${c.id}" style="--c1:${r.c};--c2:${r.d}"><div class="card ${mini?'mini':''}${VK.has(vkey(c))?' vid':''}"><img src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}"><div class="shade"></div>${c.r===4?'<i class="vinyl"></i>':''}${c.no?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p>${mini?'':`<div class="chips"><span class="chip rar">${r.n}</span><span class="chip">${esc(c.genre)}</span><span class="chip">${esc(c.year)}</span>${c.r===4?'<span class="chip">+10 🪙/Std</span>':''}${c.top?`<span class="chip">Top ${c.top}</span>`:''}</div>`}</div>${mini||!c.preview?'':`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">▶</button>`}</div></div>`;
 }
 
