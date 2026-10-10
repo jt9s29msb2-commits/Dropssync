@@ -304,6 +304,20 @@ nav button{font-size:12px}
 #scan{background:var(--go);color:#06281a;box-shadow:0 6px 18px rgba(46,224,138,.3)}
 #scan.cd{background:#2a2b30;color:#9a9ca3;box-shadow:none;opacity:1}
 @media (prefers-reduced-motion:reduce){.frame.flat .card::after,.tile::before,.crow .cv::before,.crow .cv::after,#map .dropm.ep{animation:none!important}}
+/* ===== Rare Epic: Rainbow-Glow + Ambient-Licht bei Video ===== */
+@keyframes rbg{0%,100%{box-shadow:0 0 48px 2px rgba(255,61,61,.65)}17%{box-shadow:0 0 48px 2px rgba(255,182,39,.65)}33%{box-shadow:0 0 48px 2px rgba(46,224,138,.65)}50%{box-shadow:0 0 48px 2px rgba(58,160,255,.65)}67%{box-shadow:0 0 48px 2px rgba(176,107,255,.65)}83%{box-shadow:0 0 48px 2px rgba(255,61,129,.65)}}
+.frame.ep:not(.flat)[data-t="2"]{--stops:#ff3d3d,#ffb627,#fff04d,#2ee08a,#22d3ee,#3aa0ff,#b06bff,#ff3d81,#ff3d3d;--hi:#fff;animation:rbg 6s linear infinite}
+#ov .frame.ep:not(.flat)[data-t="2"]{animation:epicspin 1.5s cubic-bezier(.2,.8,.2,1),rbg 6s linear 1.5s infinite}
+.frame.ep:not(.flat)[data-t="2"]::before{inset:-12px;filter:blur(20px) saturate(1.8) brightness(1.2);animation:spin 3.5s linear infinite,gbeat 2.4s ease-in-out infinite}
+.frame.ep:not(.flat)[data-t="2"] .card.epic .chip.rar{background:linear-gradient(100deg,#ff3d3d,#ffb627,#2ee08a,#3aa0ff,#b06bff,#ff3d81);color:#fff}
+.amb{position:absolute;z-index:-2;left:-9%;top:-7%;width:118%;height:114%;object-fit:cover;border-radius:var(--er);filter:blur(26px) saturate(1.9) brightness(1.1);opacity:.9;pointer-events:none}
+.frame.ep.has-amb{box-shadow:none!important}
+.frame.ep.has-amb::before{animation:spin 5s linear infinite;opacity:.32}
+.crow.glow[data-t="2"]{--s:#ff3d3d,#ffb627,#fff04d,#2ee08a,#22d3ee,#3aa0ff,#b06bff,#ff3d81,#ff3d3d}
+.crow.glow[data-t="2"] .cv::before{inset:-6px;filter:blur(11px) saturate(1.8) brightness(1.2);animation:spin 3.5s linear infinite,gbeat 2.4s ease-in-out infinite}
+.crow.glow[data-t="2"] .pl{color:#fff;background:linear-gradient(100deg,#ff3d3d,#ffb627,#2ee08a,#3aa0ff,#b06bff,#ff3d81);text-shadow:0 1px 2px rgba(0,0,0,.35)}
+.tile[data-r="3"][data-t="2"]{animation:rbg 6s linear infinite}
+@media (prefers-reduced-motion:reduce){.frame.ep:not(.flat)[data-t="2"],#ov .frame.ep:not(.flat)[data-t="2"],.tile[data-r="3"][data-t="2"]{animation:none}}
 </style>
 </head>
 <body>
@@ -352,7 +366,7 @@ function epicHTML(c,mini){
   const note='<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="18" r="3.2"/><circle cx="18" cy="16" r="3.2"/><path d="M9.2 4.2 20.2 2v14h-2V5.6L11.2 7V18h-2z"/></svg>';
   const cnt='<svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M5 5h14a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3zm2.5 5.5a1.5 1.5 0 0 0 0 3h9a1.5 1.5 0 0 0 0-3z"/></svg>';
   const tri='<svg viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>';
-  return `<div class="frame ep${c.r===3?'':' flat'} ${mini?'s':''}" data-r="${c.r}" data-t="${tr}" data-open="${c.id}" style="--c1:${r.c};--c2:${r.d}"><div class="card epic${VK.has(vkey(c))?' vid':''}"><img src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}"><div class="shade"></div>${c.no?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p><div class="chips"><span class="chip rar">${gem}${r.n}</span><span class="chip gen">${note}<span>${esc(c.genre)}</span></span>${n&&c.r===3?`<span class="chip cnt">${cnt}${n}</span>`:''}</div></div>${c.preview?`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${tri}</button>`:''}</div></div>`;
+  return `<div class="frame ep${c.r===3?'':' flat'} ${mini?'s':''}" data-r="${c.r}" data-t="${tr}" data-open="${c.id}" style="--c1:${r.c};--c2:${r.d}"><div class="card epic${VK.has(vkey(c))?' vid':''}"><img src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}"><div class="shade"></div>${c.no?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p><div class="chips"><span class="chip rar">${gem}${c.r===3?'Epic':r.n}</span><span class="chip gen">${note}<span>${esc(c.genre)}</span></span>${n&&c.r===3?`<span class="chip cnt">${cnt}${n}</span>`:''}</div></div>${c.preview?`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${tri}</button>`:''}</div></div>`;
 }
 
 function cardHTML(c,mini){
@@ -512,7 +526,7 @@ async function playVid(c){
   if(b)u=URL.createObjectURL(b);
   const av=$('#avd');av.hidden=!isAdm();av.dataset.k=k;$('#avx').hidden=!b;
   const im=$('#big .card img');
-  if(u&&im&&curC===c){const cd=im.closest('.card');im.outerHTML=`<video src="${esc(u)}" autoplay loop muted playsinline></video>`;cd.classList.add('vid')}
+  if(u&&im&&curC===c){const cd=im.closest('.card');im.outerHTML=`<video src="${esc(u)}" autoplay loop muted playsinline></video>`;cd.classList.add('vid');if(c.r===3){const fr=cd.closest('.frame');if(fr&&!fr.querySelector('.amb')){const a=document.createElement('video');a.className='amb';a.src=u;a.muted=a.loop=a.autoplay=a.playsInline=true;a.setAttribute('aria-hidden','true');fr.prepend(a);a.play().catch(()=>{});fr.classList.add('has-amb')}}}
 }
 $('#avf').addEventListener('change',async e=>{
   const f=e.target.files[0];e.target.value='';
@@ -611,11 +625,11 @@ async function openDrop(){
 
 // ===== Profil mit Showcase, Inventar und Teilen-Link =====
 S.show=S.show||[];let view=null,edit=false,invAll=false;
-const tile=c=>{const r=R[tierOf(c)];return `<div class="tile${edit&&!view&&S.show.includes(c.id)?' pin':''}" style="--c1:${r.c}" data-r="${c.r}" data-${edit&&!view?'pin':'open'}="${c.id}"><img src="${esc(c.cover)}" alt="" loading="lazy">${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}<div class="tt"><b>${esc(c.title)}</b><span class="chip rar" style="--c1:${r.c};--c2:${r.d}">${r.n}</span></div></div>`};
+const tile=c=>{const r=R[tierOf(c)];return `<div class="tile${edit&&!view&&S.show.includes(c.id)?' pin':''}" style="--c1:${r.c}" data-r="${c.r}" data-t="${tierOf(c)}" data-${edit&&!view?'pin':'open'}="${c.id}"><img src="${esc(c.cover)}" alt="" loading="lazy">${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}<div class="tt"><b>${esc(c.title)}</b><span class="chip rar" style="--c1:${r.c};--c2:${r.d}">${c.r===3?'Epic':r.n}</span></div></div>`};
 const ICG='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M6.5 3h11L22 9l-10 12L2 9z"/></svg>',ICN='<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="7" cy="18" r="3.2"/><circle cx="18" cy="16" r="3.2"/><path d="M9.2 4.2 20.2 2v14h-2V5.6L11.2 7V18h-2z"/></svg>',ICP='<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>';
 function rowHTML(c,V){
   const t=tierOf(c),r=R[t],pin=edit&&!V;
-  return `<div class="crow ${c.r===3?'glow':'flat'}${pin&&S.show.includes(c.id)?' pin':''}" data-t="${t}" style="--c1:${r.c};--c2:${r.d}" data-${pin?'pin':'open'}="${c.id}"><div class="cv"><img src="${esc(c.cover)}" alt="" loading="lazy">${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}</div><div class="ct"><b>${esc(c.title)}</b><span>${esc(c.artist)}</span><i class="pl">${ICG}${r.n}</i></div>${c.preview?`<button class="cp" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${ICP}</button>`:''}</div>`;
+  return `<div class="crow ${c.r===3?'glow':'flat'}${pin&&S.show.includes(c.id)?' pin':''}" data-t="${t}" style="--c1:${r.c};--c2:${r.d}" data-${pin?'pin':'open'}="${c.id}"><div class="cv"><img src="${esc(c.cover)}" alt="" loading="lazy">${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}</div><div class="ct"><b>${esc(c.title)}</b><span>${esc(c.artist)}</span><i class="pl">${ICG}${c.r===3?'Epic':r.n}</i></div>${c.preview?`<button class="cp" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${ICP}</button>`:''}</div>`;
 }
 function collHTML(inv,V){
   const pin=edit&&!V,l=invAll||pin?inv:inv.slice(0,8);
