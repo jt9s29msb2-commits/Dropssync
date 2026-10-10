@@ -391,6 +391,23 @@ img.d2{position:absolute;inset:0;opacity:0;animation:duoB 8s ease-in-out infinit
 .bjc{display:inline-grid;place-items:center;width:54px;height:76px;border-radius:10px;background:#f4f1ee;color:#111;font-weight:800;font-size:21px;margin:0 6px 6px 0}
 .bjc.r{color:#d11}.bjc.h{background:linear-gradient(135deg,#5a1230,#1b1c21);color:var(--mute)}
 nav button{font-size:11px}
+#apn{position:fixed;inset:0;z-index:1900;background:var(--bg);overflow-y:auto;padding:calc(14px + env(safe-area-inset-top)) 16px 48px;-webkit-overflow-scrolling:touch}
+#apn[hidden]{display:none}
+.aph{display:flex;align-items:center;gap:14px;margin-bottom:14px}
+.aav{width:72px;height:72px;border-radius:50%;overflow:hidden;background:var(--panel);flex:none}.aav img{width:100%;height:100%;object-fit:cover;display:block}
+.aph h2{font-size:26px;line-height:1.1}.aph small,.at small{color:var(--mute)}
+.at{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}.at b{font-size:16px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.asec{margin:24px 0 8px;font-size:18px;font-weight:800}
+.achs{display:flex;flex-wrap:wrap;gap:8px}.achs span{background:var(--panel);border-radius:99px;padding:6px 12px;font-size:13px;font-weight:600}
+.arow,.ahd{display:flex;align-items:center;gap:12px;padding:8px 0}
+.arow img,.ahd img{width:52px;height:52px;border-radius:10px;object-fit:cover;background:var(--panel);flex:none}
+.arow[data-open]{cursor:pointer}.ahd{cursor:pointer;border-bottom:1px solid #26272d}
+.apc{font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:rgba(255,255,255,.1);color:var(--c1);white-space:nowrap;flex:none}
+.apg{font-size:13px;font-weight:700;color:var(--go);flex:none}.acv{color:var(--mute);width:16px;text-align:center;flex:none}
+.atr{padding:4px 0 10px 64px}
+.atk{display:flex;align-items:center;gap:8px;padding:7px 0;font-size:14px;color:#7d8088}.atk.own{color:var(--ink)}
+.atk .an{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.atk .ai{width:22px;text-align:right;color:#5f636d;font-size:12px;flex:none}
+.alink{text-decoration:underline;text-decoration-color:rgba(255,255,255,.4);text-underline-offset:3px;cursor:pointer}
 </style>
 </head>
 <body>
@@ -409,6 +426,7 @@ nav button{font-size:11px}
 <div id="auth" hidden><h1>Drops</h1><p id="am"></p><input id="au" placeholder="Benutzername" autocomplete="username" maxlength="20"><input id="ap" type="password" placeholder="Passwort (mind. 6 Zeichen)"><button class="btn" id="ago" style="height:50px"></button><button class="ghost" id="asw" style="width:auto;height:42px;border-radius:14px;padding:0 14px"></button><button class="ghost" id="afg" style="width:auto;height:42px;border-radius:14px;padding:0 14px">Passwort vergessen?</button>
 <div id="rs" hidden style="display:flex;flex-direction:column;gap:10px"><p class="gs">Tippe auf deinen Account und lege ein neues Passwort fest.</p><div class="chs" id="rl"></div><input id="rp" type="password" placeholder="Neues Passwort (mind. 6 Zeichen)" autocomplete="new-password"><input id="rp2" type="password" placeholder="Neues Passwort wiederholen" autocomplete="new-password"><button class="btn" id="rgo" style="height:50px">Passwort speichern</button><button class="ghost" id="rbk" style="width:auto;height:42px;border-radius:14px;padding:0 14px">Zurück</button></div></div>
 <div id="ov"><div id="msg"></div><div id="big"></div><button id="qs" hidden></button><div id="avd" hidden><label class="btn">🎬 Video hochladen<input id="avf" type="file" accept="video/*" hidden></label><button id="avx" hidden>Video entfernen</button></div></div>
+<div id="apn" hidden></div>
 <div id="fc" hidden></div>
 <div id="toast"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
@@ -441,13 +459,13 @@ function epicHTML(c,mini){
   const note='<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="18" r="3.2"/><circle cx="18" cy="16" r="3.2"/><path d="M9.2 4.2 20.2 2v14h-2V5.6L11.2 7V18h-2z"/></svg>';
   const cnt='<svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M5 5h14a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3zm2.5 5.5a1.5 1.5 0 0 0 0 3h9a1.5 1.5 0 0 0 0-3z"/></svg>';
   const tri='<svg viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>';
-  return `<div class="frame ep${c.r===3?'':' flat'}${pl?' pal':''}${c.duo?' duo':''} ${mini?'s':''}" data-r="${c.r}" data-t="${tr}" data-open="${c.id}" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}${pl?`;--stops:${pl.join(',')},${pl[0]};--gh:${pl[0]}99`:''}"><div class="card epic${VK.has(vkey(c))?' vid':''}"><img${c.duo?' class="d1"':''} src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}">${c.duo?`<img class="d2" src="${esc(c.cover2)}" alt="">`:''}<div class="shade"></div>${c.duo?'<span class="dl dl1">Standard</span><span class="dl dl2">Deluxe</span>':''}${c.no&&!c.duo?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p><div class="chips"><span class="chip rar">${gem}${c.duo?duoName():c.r===3?'Epic':r.n}</span><span class="chip gen">${note}<span>${esc(c.genre)}</span></span>${n&&c.r===3&&!c.duo?`<span class="chip cnt">${cnt}${n}</span>`:''}</div></div>${c.preview?`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${tri}</button>`:''}</div></div>`;
+  return `<div class="frame ep${c.r===3?'':' flat'}${pl?' pal':''}${c.duo?' duo':''} ${mini?'s':''}" data-r="${c.r}" data-t="${tr}" data-open="${c.id}" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}${pl?`;--stops:${pl.join(',')},${pl[0]};--gh:${pl[0]}99`:''}"><div class="card epic${VK.has(vkey(c))?' vid':''}"><img${c.duo?' class="d1"':''} src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}">${c.duo?`<img class="d2" src="${esc(c.cover2)}" alt="">`:''}<div class="shade"></div>${c.duo?'<span class="dl dl1">Standard</span><span class="dl dl2">Deluxe</span>':''}${c.no&&!c.duo?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${mini?esc(c.artist):`<span class="alink" data-artist="${esc(c.artist)}" data-tid="${c.id}">${esc(c.artist)}</span>`}</p><div class="chips"><span class="chip rar">${gem}${c.duo?duoName():c.r===3?'Epic':r.n}</span><span class="chip gen">${note}<span>${esc(c.genre)}</span></span>${n&&c.r===3&&!c.duo?`<span class="chip cnt">${cnt}${n}</span>`:''}</div></div>${c.preview?`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${tri}</button>`:''}</div></div>`;
 }
 
 function cardHTML(c,mini){
   const r=R[c.r];
   if(c.r===3||(c.r<3&&!mini))return epicHTML(c,mini);
-  return `<div class="frame${c.r<3?' flat':''} ${mini?'s':''}" data-r="${c.r}" data-open="${c.id}" style="--c1:${r.c};--c2:${r.d}"><div class="card ${mini?'mini':''}${VK.has(vkey(c))?' vid':''}"><img src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}"><div class="shade"></div>${c.r===4?'<i class="vinyl"></i>':''}${c.no&&!c.duo?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p>${mini?'':`<div class="chips"><span class="chip rar">${r.n}</span><span class="chip">${esc(c.genre)}</span><span class="chip">${esc(c.year)}</span>${c.r===4?'<span class="chip">+10 🪙/Std</span>':''}${c.top?`<span class="chip">Top ${c.top}</span>`:''}</div>`}</div>${mini||!c.preview?'':`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">▶</button>`}</div></div>`;
+  return `<div class="frame${c.r<3?' flat':''} ${mini?'s':''}" data-r="${c.r}" data-open="${c.id}" style="--c1:${r.c};--c2:${r.d}"><div class="card ${mini?'mini':''}${VK.has(vkey(c))?' vid':''}"><img src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}"><div class="shade"></div>${c.r===4?'<i class="vinyl"></i>':''}${c.no&&!c.duo?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${mini?esc(c.artist):`<span class="alink" data-artist="${esc(c.artist)}" data-tid="${c.id}">${esc(c.artist)}</span>`}</p>${mini?'':`<div class="chips"><span class="chip rar">${r.n}</span><span class="chip">${esc(c.genre)}</span><span class="chip">${esc(c.year)}</span>${c.r===4?'<span class="chip">+10 🪙/Std</span>':''}${c.top?`<span class="chip">Top ${c.top}</span>`:''}</div>`}</div>${mini||!c.preview?'':`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">▶</button>`}</div></div>`;
 }
 
 // Vinyl-Fähigkeit: Jede Vinyl in deiner Sammlung spielt 10 Münzen pro Stunde ein (bis zu 24 Std. gesammelt)
@@ -482,6 +500,10 @@ function play(url){
 document.addEventListener('click',e=>{
   const t=e.target;
   const p=t.closest('[data-play]');if(p){e.stopPropagation();play(p.dataset.play);return}
+  const ak=t.closest('[data-artist]');if(ak){openArtist(ak.dataset.artist,+ak.dataset.tid);return}
+  if(t.closest('[data-aclose]')){$('#apn').hidden=true;return}
+  const ab=t.closest('[data-alb]');if(ab){const id=+ab.dataset.alb;if(apOpen.has(id))apOpen.delete(id);else{apOpen.add(id);if(!ALB[id])loadAlb(id).then(apRender).catch(()=>{ALB[id]=[];apRender()})}apRender();return}
+  if(t.closest('[data-aload]')){apLoadAll();return}
   
   if(t.closest('[data-drop]')){openDrop();return}
   const qb=t.closest('#qs');if(qb){quick(+qb.dataset.qs);return}
@@ -529,7 +551,7 @@ function addCard(c,msg){
     const ah=!c.duo&&c.title==='After Hours'&&/weeknd/i.test(c.artist);
     if(ah&&USER==='theweeknd'&&c.no===1)ED[c.id]=Math.max(ED[c.id]||0,1);
     else c.no=ED[c.id]=Math.max((ED[c.id]||0)+1,ah?2:1);
-    saveED();
+    saveED();EDM[c.id]={t:c.title,a:c.artist,n:ED[c.id]};saveEDM();
   }else delete c.no;
   S.cards.unshift(c);S.coins+=R[c.r].coins;save();render();showCard(c,msg)}
 
@@ -974,6 +996,73 @@ function buy(lid){
   if(S.cards.some(c=>c.id===l.c.id)){toast('Diesen Song hast du schon');return}
   try{const sd=ud(l.seller);sd.cards=(sd.cards||[]).filter(c=>c.id!==l.c.id);sd.show=(sd.show||[]).filter(x=>x!==l.c.id);sd.coins=(sd.coins||0)+l.p;localStorage.setItem('drops-v1:'+l.seller,JSON.stringify(sd))}catch(e){toast('Kauf fehlgeschlagen');return}
   M.splice(i,1);setMkt(M);S.coins-=l.p;S.cards.unshift({...l.c,at:Date.now()});save();render();showCard(l.c,'Gekauft!');
+}
+
+// ===== Artist-Profil: Diskografie, eigene Songs, existierende Epics =====
+const EDM=(()=>{try{return JSON.parse(localStorage.getItem('drops-edm'))||{}}catch(e){return{}}})();
+const saveEDM=()=>{try{localStorage.setItem('drops-edm',JSON.stringify(EDM))}catch(e){}};
+const AR={},ALB={},apOpen=new Set();let apCur='',apBusy=false;
+const apHas=(a,pn)=>String(a).toLowerCase().includes(pn);
+const aChip=c=>{const r=R[c.r];return `<span class="apc" style="--c1:${r.c}">${c.r===3?'Epic'+(c.no?' #'+c.no:''):r.n}</span>`};
+async function loadAlb(id){
+  if(!ALB[id])ALB[id]=(await jg(`https://itunes.apple.com/lookup?id=${id}&entity=song&limit=200&country=us`)).filter(x=>x.wrapperType==='track'&&x.kind==='song'&&x.trackId);
+  return ALB[id];
+}
+async function openArtist(name,tid){
+  const pn=prim(name),p=$('#apn');
+  apCur=pn;$('#ov').classList.remove('on');
+  p.hidden=false;p.scrollTop=0;
+  p.innerHTML='<button class="ghost" data-aclose aria-label="Zurück">‹</button><p class="empty">Diskografie wird geladen …</p>';
+  try{
+    if(!AR[pn]){
+      const r=await jg(`https://itunes.apple.com/search?term=${encodeURIComponent(pn)}&entity=musicArtist&limit=5&country=us`),m=r.find(x=>x.artistName.toLowerCase()===pn.toLowerCase())||r[0];
+      let id=m&&m.artistId;
+      if(!id&&tid){const r2=await jg(`https://itunes.apple.com/lookup?id=${tid}&country=us`);id=r2[0]&&r2[0].artistId}
+      if(!id)throw 0;
+      const al=(await jg(`https://itunes.apple.com/lookup?id=${id}&entity=album&limit=200&country=us`)).filter(x=>x.wrapperType==='collection'&&x.collectionId).sort((a,b)=>(b.releaseDate||'').localeCompare(a.releaseDate||''));
+      AR[pn]={id,al};
+    }
+    apRender();
+    artistInfo(pn).then(()=>{if(apCur===pn)apRender()});
+  }catch(e){p.innerHTML='<button class="ghost" data-aclose aria-label="Zurück">‹</button><p class="empty">Die Diskografie konnte nicht geladen werden.</p>'}
+}
+function apRender(){
+  const p=$('#apn'),d=AR[apCur];
+  if(!d||p.hidden)return;
+  const pn=apCur.toLowerCase(),inf=INFO[apCur]||{};
+  const mine=S.cards.filter(c=>apHas(c.artist,pn)).sort((a,b)=>b.r-a.r);
+  const eps=Object.entries(EDM).filter(([id,m])=>apHas(m.a,pn)).sort((a,b)=>(b[1].n||0)-(a[1].n||0));
+  const ownId=new Set(S.cards.map(c=>c.id)),ownT=new Map(mine.map(c=>[nrm(c.title),c])),edT={};
+  eps.forEach(([id,m])=>{edT[nrm(m.t)]=Math.max(edT[nrm(m.t)]||0,m.n||0)});
+  const ld=d.al.filter(a=>ALB[a.collectionId]).length,all=new Map();
+  d.al.forEach(a=>(ALB[a.collectionId]||[]).forEach(t=>all.set(nrm(t.trackName),t)));
+  const have=[...all.keys()].filter(k=>ownT.has(k)).length;
+  const track=(t,i)=>{
+    const c=S.cards.find(x=>x.id===t.trackId)||ownT.get(nrm(t.trackName)),n=Math.max(ED[t.trackId]||0,edT[nrm(t.trackName)]||0);
+    return `<div class="atk${c?' own':''}"><span class="ai">${i+1}</span><span class="an">${esc(t.trackName)}</span>${n?`<span class="apc" style="--c1:${R[3].c}">Epic bis #${n}</span>`:''}${c?aChip(c):''}</div>`;
+  };
+  const albs=d.al.map(a=>{
+    const open=apOpen.has(a.collectionId),tr=ALB[a.collectionId];
+    const prog=tr&&tr.length?`<span class="apg">${tr.filter(t=>ownId.has(t.trackId)||ownT.has(nrm(t.trackName))).length}/${tr.length}</span>`:'';
+    return `<div><div class="ahd" data-alb="${a.collectionId}"><img src="${esc((a.artworkUrl100||'').replace('100x100','200x200'))}" alt="" loading="lazy"><div class="at"><b>${esc(a.collectionName)}</b><small>${(a.releaseDate||'').slice(0,4)} · ${a.trackCount||'?'} Songs</small></div>${prog}<span class="acv">${open?'▾':'▸'}</span></div>${open?`<div class="atr">${tr?(tr.length?tr.map(track).join(''):'<p class="empty">Keine Songs gefunden.</p>'):'<p class="empty">Lade Songs …</p>'}</div>`:''}</div>`;
+  }).join('');
+  const sc=p.scrollTop;
+  p.innerHTML=`<div class="aph"><button class="ghost" data-aclose aria-label="Zurück">‹</button><div class="aav">${inf.p?`<img src="${esc(inf.p)}" alt="">`:''}</div><div class="at"><h2>${esc(apCur)}</h2><small>${inf.f?inf.f.toLocaleString('de-DE')+' Fans · ':''}${d.al.length} Releases</small></div></div>
+  <div class="achs"><span>🎵 ${mine.length} gezogen</span><span>Epics im Umlauf: ${eps.length}</span>${ld===d.al.length&&all.size?`<span>Komplett: ${have}/${all.size}</span>`:''}</div>
+  <div class="asec">Epics im Umlauf</div>${eps.length?eps.map(([id,m])=>{const o=S.cards.find(c=>String(c.id)===id&&c.r===3);return `<div class="arow"${o?` data-open="${id}"`:''}><div class="at"><b>${esc(m.t)}</b><small>vergeben bis #${m.n||'?'}</small></div>${o?`<span class="apc" style="--c1:${R[3].c}">Du #${o.no||'?'}</span>`:''}</div>`}).join(''):'<p class="empty" style="text-align:left">Von diesem Artist wurde noch kein Epic gezogen.</p>'}
+  <div class="asec">Meine Songs</div>${mine.length?mine.map(c=>`<div class="arow" data-open="${c.id}"><img src="${esc(c.cover)}" alt="" loading="lazy"><div class="at"><b>${esc(c.title)}</b><small>${esc(c.year||'')}</small></div>${aChip(c)}</div>`).join(''):'<p class="empty" style="text-align:left">Du hast noch keinen Song von diesem Artist.</p>'}
+  <div class="asec">Diskografie</div>
+  ${ld<d.al.length?`<button class="btn" style="height:44px;width:100%;margin-bottom:10px" data-aload ${apBusy?'disabled':''}>${apBusy?`Lädt … ${ld}/${d.al.length}`:'Fortschritt aller Alben laden'}</button>`:''}${albs}`;
+  p.scrollTop=sc;
+}
+async function apLoadAll(){
+  if(apBusy)return;
+  const cur=apCur,d=AR[cur];apBusy=true;apRender();
+  for(const a of d.al){
+    if(apCur!==cur||$('#apn').hidden)break;
+    if(!ALB[a.collectionId]){try{await loadAlb(a.collectionId)}catch(e){ALB[a.collectionId]=[]}await new Promise(r=>setTimeout(r,300));apRender()}
+  }
+  apBusy=false;apRender();
 }
 
 // ===== Admin-Panel (nur TheWeeknd) =====
