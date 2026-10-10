@@ -369,6 +369,19 @@ img.d2{position:absolute;inset:0;opacity:0;animation:duoB 8s ease-in-out infinit
 #ov .frame.ep.duo{animation:epicspin 1.5s cubic-bezier(.2,.8,.2,1),duoG 8s ease-in-out 1.5s infinite}
 .frame.ep.duo .card.epic .chip.rar{background:linear-gradient(100deg,#ff3d5a,#3aa0ff);color:#fff}
 @media (prefers-reduced-motion:reduce){img.d1,img.d2,.dl1,.dl2,.frame.ep.duo,#ov .frame.ep.duo{animation:none}}
+/* ===== Duo-Epic-Schriftzug: DUO (rot) | EPIC (blau), aktive Hälfte folgt dem Cover ===== */
+@keyframes duoD1{0%,40%,100%{filter:brightness(1.2) saturate(1.25)}50%,90%{filter:brightness(.5) saturate(.6)}}
+@keyframes duoD2{0%,40%,100%{filter:brightness(.5) saturate(.6)}50%,90%{filter:brightness(1.2) saturate(1.25)}}
+.dn{display:inline-flex;align-self:stretch;font-style:italic;font-weight:900;letter-spacing:.14em;line-height:1}
+.dn b{display:inline-flex;align-items:center;padding:.4em .8em;color:#fff;font-weight:900}
+.dn b:first-child{background:#ff3d5a;padding-right:1.1em;border-radius:99px 0 0 99px;clip-path:polygon(0 0,100% 0,calc(100% - .45em) 100%,0 100%);text-shadow:0 0 .7em #ff9aa9;animation:duoD1 8s ease-in-out infinite}
+.dn b:last-child{background:#3aa0ff;margin-left:-.4em;padding-left:1.1em;border-radius:0 99px 99px 0;clip-path:polygon(.45em 0,100% 0,100% 100%,0 100%);text-shadow:0 0 .7em #a5d4ff;animation:duoD2 8s ease-in-out infinite}
+.dp{padding:0!important;background:none!important;box-shadow:none!important;gap:0!important;overflow:hidden}
+.dp svg{display:none}
+.tt .chip.dp{display:inline-flex}
+.frame.ep.duo .card.epic .chip.rar{background:none;padding:0;overflow:hidden;box-shadow:none;text-shadow:none}
+.frame.ep.duo .card.epic .chip.rar svg{display:none}
+@media (prefers-reduced-motion:reduce){.dn b{animation:none}}
 </style>
 </head>
 <body>
@@ -418,13 +431,13 @@ function epicHTML(c,mini){
   const note='<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="18" r="3.2"/><circle cx="18" cy="16" r="3.2"/><path d="M9.2 4.2 20.2 2v14h-2V5.6L11.2 7V18h-2z"/></svg>';
   const cnt='<svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M5 5h14a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3zm2.5 5.5a1.5 1.5 0 0 0 0 3h9a1.5 1.5 0 0 0 0-3z"/></svg>';
   const tri='<svg viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>';
-  return `<div class="frame ep${c.r===3?'':' flat'}${pl?' pal':''}${c.duo?' duo':''} ${mini?'s':''}" data-r="${c.r}" data-t="${tr}" data-open="${c.id}" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}${pl?`;--stops:${pl.join(',')},${pl[0]};--gh:${pl[0]}99`:''}"><div class="card epic${VK.has(vkey(c))?' vid':''}"><img${c.duo?' class="d1"':''} src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}">${c.duo?`<img class="d2" src="${esc(c.cover2)}" alt="">`:''}<div class="shade"></div>${c.duo?'<span class="dl dl1">Standard</span><span class="dl dl2">Deluxe</span>':''}${c.no?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p><div class="chips"><span class="chip rar">${gem}${c.duo?'Duo Epic':c.r===3?'Epic':r.n}</span><span class="chip gen">${note}<span>${esc(c.genre)}</span></span>${n&&c.r===3?`<span class="chip cnt">${cnt}${n}</span>`:''}</div></div>${c.preview?`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${tri}</button>`:''}</div></div>`;
+  return `<div class="frame ep${c.r===3?'':' flat'}${pl?' pal':''}${c.duo?' duo':''} ${mini?'s':''}" data-r="${c.r}" data-t="${tr}" data-open="${c.id}" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}${pl?`;--stops:${pl.join(',')},${pl[0]};--gh:${pl[0]}99`:''}"><div class="card epic${VK.has(vkey(c))?' vid':''}"><img${c.duo?' class="d1"':''} src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}">${c.duo?`<img class="d2" src="${esc(c.cover2)}" alt="">`:''}<div class="shade"></div>${c.duo?'<span class="dl dl1">Standard</span><span class="dl dl2">Deluxe</span>':''}${c.no&&!c.duo?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p><div class="chips"><span class="chip rar">${gem}${c.duo?duoName():c.r===3?'Epic':r.n}</span><span class="chip gen">${note}<span>${esc(c.genre)}</span></span>${n&&c.r===3&&!c.duo?`<span class="chip cnt">${cnt}${n}</span>`:''}</div></div>${c.preview?`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${tri}</button>`:''}</div></div>`;
 }
 
 function cardHTML(c,mini){
   const r=R[c.r];
   if(c.r===3||(c.r<3&&!mini))return epicHTML(c,mini);
-  return `<div class="frame${c.r<3?' flat':''} ${mini?'s':''}" data-r="${c.r}" data-open="${c.id}" style="--c1:${r.c};--c2:${r.d}"><div class="card ${mini?'mini':''}${VK.has(vkey(c))?' vid':''}"><img src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}"><div class="shade"></div>${c.r===4?'<i class="vinyl"></i>':''}${c.no?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p>${mini?'':`<div class="chips"><span class="chip rar">${r.n}</span><span class="chip">${esc(c.genre)}</span><span class="chip">${esc(c.year)}</span>${c.r===4?'<span class="chip">+10 🪙/Std</span>':''}${c.top?`<span class="chip">Top ${c.top}</span>`:''}</div>`}</div>${mini||!c.preview?'':`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">▶</button>`}</div></div>`;
+  return `<div class="frame${c.r<3?' flat':''} ${mini?'s':''}" data-r="${c.r}" data-open="${c.id}" style="--c1:${r.c};--c2:${r.d}"><div class="card ${mini?'mini':''}${VK.has(vkey(c))?' vid':''}"><img src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}"><div class="shade"></div>${c.r===4?'<i class="vinyl"></i>':''}${c.no&&!c.duo?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p>${mini?'':`<div class="chips"><span class="chip rar">${r.n}</span><span class="chip">${esc(c.genre)}</span><span class="chip">${esc(c.year)}</span>${c.r===4?'<span class="chip">+10 🪙/Std</span>':''}${c.top?`<span class="chip">Top ${c.top}</span>`:''}</div>`}</div>${mini||!c.preview?'':`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">▶</button>`}</div></div>`;
 }
 
 // Vinyl-Fähigkeit: Jede Vinyl in deiner Sammlung spielt 10 Münzen pro Stunde ein (bis zu 24 Std. gesammelt)
@@ -701,11 +714,11 @@ async function openDrop(){
 // ===== Profil mit Showcase, Inventar und Teilen-Link =====
 S.show=S.show||[];let view=null,edit=false,invAll=false;
 if(USER==='theweeknd'&&S.duoNext===undefined&&!S.duoDone){S.duoNext=1;save()}
-const tile=c=>{const r=R[tierOf(c)],pl=palOf(c);return `<div class="tile${edit&&!view&&S.show.includes(c.id)?' pin':''}${pl?' pal':''}" style="--c1:${pl?pl[0]:r.c}" data-r="${c.r}" data-t="${tierOf(c)}" data-${edit&&!view?'pin':'open'}="${c.id}"><img${c.duo?' class="d1"':''} src="${esc(c.cover)}" alt="" loading="lazy">${c.duo?`<img class="d2" src="${esc(c.cover2)}" alt="" loading="lazy">`:''}${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}<div class="tt"><b>${esc(c.title)}</b><span class="chip rar" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}">${c.duo?'Duo Epic':c.r===3?'Epic':r.n}</span></div></div>`};
+const tile=c=>{const r=R[tierOf(c)],pl=palOf(c);return `<div class="tile${edit&&!view&&S.show.includes(c.id)?' pin':''}${pl?' pal':''}" style="--c1:${pl?pl[0]:r.c}" data-r="${c.r}" data-t="${tierOf(c)}" data-${edit&&!view?'pin':'open'}="${c.id}"><img${c.duo?' class="d1"':''} src="${esc(c.cover)}" alt="" loading="lazy">${c.duo?`<img class="d2" src="${esc(c.cover2)}" alt="" loading="lazy">`:''}${c.r===3&&c.no&&!c.duo?`<b class="no">#${c.no}</b>`:''}<div class="tt"><b>${esc(c.title)}</b><span class="chip rar${c.duo?' dp':''}" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}">${c.duo?duoName():c.r===3?'Epic':r.n}</span></div></div>`};
 const ICG='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M6.5 3h11L22 9l-10 12L2 9z"/></svg>',ICN='<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="7" cy="18" r="3.2"/><circle cx="18" cy="16" r="3.2"/><path d="M9.2 4.2 20.2 2v14h-2V5.6L11.2 7V18h-2z"/></svg>',ICP='<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>';
 function rowHTML(c,V){
   const t=tierOf(c),r=R[t],pl=palOf(c),pin=edit&&!V;
-  return `<div class="crow ${c.r===3?'glow':'flat'}${pl?' pal':''}${pin&&S.show.includes(c.id)?' pin':''}" data-t="${t}" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}${pl?`;--s:${pl.join(',')},${pl[0]}`:''}" data-${pin?'pin':'open'}="${c.id}"><div class="cv"><img${c.duo?' class="d1"':''} src="${esc(c.cover)}" alt="" loading="lazy">${c.duo?`<img class="d2" src="${esc(c.cover2)}" alt="" loading="lazy">`:''}${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}</div><div class="ct"><b>${esc(c.title)}</b><span>${esc(c.artist)}</span><i class="pl">${ICG}${c.duo?'Duo Epic':c.r===3?'Epic':r.n}</i></div>${c.preview?`<button class="cp" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${ICP}</button>`:''}</div>`;
+  return `<div class="crow ${c.r===3?'glow':'flat'}${pl?' pal':''}${pin&&S.show.includes(c.id)?' pin':''}" data-t="${t}" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}${pl?`;--s:${pl.join(',')},${pl[0]}`:''}" data-${pin?'pin':'open'}="${c.id}"><div class="cv"><img${c.duo?' class="d1"':''} src="${esc(c.cover)}" alt="" loading="lazy">${c.duo?`<img class="d2" src="${esc(c.cover2)}" alt="" loading="lazy">`:''}${c.r===3&&c.no&&!c.duo?`<b class="no">#${c.no}</b>`:''}</div><div class="ct"><b>${esc(c.title)}</b><span>${esc(c.artist)}</span><i class="pl${c.duo?' dp':''}">${ICG}${c.duo?duoName():c.r===3?'Epic':r.n}</i></div>${c.preview?`<button class="cp" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${ICP}</button>`:''}</div>`;
 }
 function collHTML(inv,V){
   const pin=edit&&!V,l=invAll||pin?inv:inv.slice(0,8);
@@ -860,6 +873,7 @@ async function openBox(kind,g,a,price){
 }
 
 // ===== Duo Epic: wechselt zwischen Standard- und Deluxe-Album =====
+function duoName(){return'<span class="dn"><b>DUO</b><b>EPIC</b></span>'}
 const duoMsg=()=>`Duo Epic! After Hours · Standard + Deluxe. +${R[3].coins} Münzen`;
 async function duoAH(){
   const q=u=>fetch(u).then(r=>r.json()).then(j=>j.results||[]);
@@ -924,7 +938,7 @@ const saveED=()=>{try{localStorage.setItem('drops-ed',JSON.stringify(ED))}catch(
 const mkt=()=>{try{return JSON.parse(localStorage.getItem('drops-market'))||[]}catch(e){return[]}},setMkt=m=>{try{localStorage.setItem('drops-market',JSON.stringify(m))}catch(e){}};
 const ud=k=>{try{return JSON.parse(localStorage.getItem('drops-v1:'+k))||{}}catch(e){return{}}};
 let mk=0;
-const rchip=c=>{const r=R[c.r];return `<span class="chip rar" style="--c1:${r.c};--c2:${r.d}">${r.n}${c.r===3&&c.no?' #'+c.no:''}</span>`};
+const rchip=c=>{const r=R[c.r];return `<span class="chip rar" style="--c1:${r.c};--c2:${r.d}">${r.n}${c.r===3&&c.no&&!c.duo?' #'+c.no:''}</span>`};
 function marketHTML(){
   const M=mkt(),qq=q.toLowerCase(),mine=M.filter(x=>x.seller===USER);
   const chs=`<div class="chs"><button class="chip${mk?'':' on'}" data-mk="0">Angebote</button><button class="chip${mk?' on':''}" data-mk="1">Meine Karten verkaufen</button></div>`;
@@ -1059,7 +1073,7 @@ const QS=[10,25,60,200,600];
 function quick(id){
   const c=S.cards.find(x=>x.id===id);if(!c)return;
   const v=QS[c.r];
-  if(c.r>=3&&!confirm(`Epic „${c.title}“${c.no?' #'+c.no:''} wirklich für ${v} Münzen verkaufen?`))return;
+  if(c.r>=3&&!confirm(`Epic „${c.title}“${c.no&&!c.duo?' #'+c.no:''} wirklich für ${v} Münzen verkaufen?`))return;
   S.cards=S.cards.filter(x=>x.id!==id);S.show=(S.show||[]).filter(x=>x!==id);S.coins+=v;
   setMkt(mkt().filter(x=>!(x.seller===USER&&x.c.id===id)));
   save();$('#ov').classList.remove('on');render();toast(`+${v} Münzen`);
