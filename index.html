@@ -318,6 +318,17 @@ nav button{font-size:12px}
 .crow.glow[data-t="2"] .pl{color:#fff;background:linear-gradient(100deg,#ff3d3d,#ffb627,#2ee08a,#3aa0ff,#b06bff,#ff3d81);text-shadow:0 1px 2px rgba(0,0,0,.35)}
 .tile[data-r="3"][data-t="2"]{animation:rbg 6s linear infinite}
 @media (prefers-reduced-motion:reduce){.frame.ep:not(.flat)[data-t="2"],#ov .frame.ep:not(.flat)[data-t="2"],.tile[data-r="3"][data-t="2"]{animation:none}}
+/* ===== Glow-Fade (kein Abschneiden) + Video-Palette ===== */
+.crow{padding:34px;margin:-21px -34px;contain-intrinsic-size:auto 66px}
+.crow.pin{outline:0}
+.crow.pin .cv{outline:2px solid var(--go);outline-offset:3px}
+.crow.glow .cv::before,.crow.glow[data-t="2"] .cv::before{inset:-3px;border-radius:16px;filter:blur(14px) saturate(1.7) brightness(1.15)}
+.frame.ep.pal:not(.flat){animation:none}
+#ov .frame.ep.pal:not(.flat){animation:epicspin 1.5s cubic-bezier(.2,.8,.2,1)}
+.frame.ep.pal:not(.flat) .card.epic .chip.rar{background:linear-gradient(100deg,var(--c1),var(--c2));color:#fff}
+.crow.glow.pal .pl{background:linear-gradient(100deg,var(--c1),var(--c2))}
+.tile.pal{animation:none!important}
+.frame.ep.has-amb:not(.flat)::before{animation:spin 5s linear infinite;opacity:.4}
 </style>
 </head>
 <body>
@@ -360,13 +371,13 @@ function rarityOf(id){const h=Math.imul(id|0,2654435761)>>>0;const n=Math.floor(
 // Nummerierte Epics haben eine Stufe (Common/Uncommon/Rare), fest aus der Song-ID berechnet
 function tierOf(c){if(c.r!==3)return c.r;const n=Math.floor((Math.imul((c.id|0)^0x5bd1e995,2654435761)>>>0)/4294967296*100);return n<55?0:n<85?1:2}
 function epicHTML(c,mini){
-  const tr=tierOf(c),r=R[tr];
+  const tr=tierOf(c),r=R[tr],pl=palOf(c);
   let n=c.no||0;try{n=Math.max(n,ED[c.id]||0)}catch(e){}
   const gem='<svg viewBox="0 0 24 24"><path d="M6.5 3h11L22 9l-10 12L2 9z" fill="#fff"/><path d="M2 9h20M9.5 3 8 9l4 12 4-12-1.5-6" fill="none" stroke="#7fbf9a" stroke-width="1.2" stroke-linejoin="round"/></svg>';
   const note='<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="18" r="3.2"/><circle cx="18" cy="16" r="3.2"/><path d="M9.2 4.2 20.2 2v14h-2V5.6L11.2 7V18h-2z"/></svg>';
   const cnt='<svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M5 5h14a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3zm2.5 5.5a1.5 1.5 0 0 0 0 3h9a1.5 1.5 0 0 0 0-3z"/></svg>';
   const tri='<svg viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>';
-  return `<div class="frame ep${c.r===3?'':' flat'} ${mini?'s':''}" data-r="${c.r}" data-t="${tr}" data-open="${c.id}" style="--c1:${r.c};--c2:${r.d}"><div class="card epic${VK.has(vkey(c))?' vid':''}"><img src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}"><div class="shade"></div>${c.no?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p><div class="chips"><span class="chip rar">${gem}${c.r===3?'Epic':r.n}</span><span class="chip gen">${note}<span>${esc(c.genre)}</span></span>${n&&c.r===3?`<span class="chip cnt">${cnt}${n}</span>`:''}</div></div>${c.preview?`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${tri}</button>`:''}</div></div>`;
+  return `<div class="frame ep${c.r===3?'':' flat'}${pl?' pal':''} ${mini?'s':''}" data-r="${c.r}" data-t="${tr}" data-open="${c.id}" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}${pl?`;--stops:${pl.join(',')},${pl[0]};--gh:${pl[0]}99`:''}"><div class="card epic${VK.has(vkey(c))?' vid':''}"><img src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}"><div class="shade"></div>${c.no?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p><div class="chips"><span class="chip rar">${gem}${c.r===3?'Epic':r.n}</span><span class="chip gen">${note}<span>${esc(c.genre)}</span></span>${n&&c.r===3?`<span class="chip cnt">${cnt}${n}</span>`:''}</div></div>${c.preview?`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${tri}</button>`:''}</div></div>`;
 }
 
 function cardHTML(c,mini){
@@ -519,10 +530,31 @@ const vidPut=async(k,f)=>{const d=await vdb();return new Promise((ok,no)=>{const
 const vidDel=async k=>{const d=await vdb();return new Promise(ok=>{const t=d.transaction('v','readwrite');t.objectStore('v').delete(k);t.oncomplete=ok;t.onerror=ok})};
 const vkey=c=>(c.title+'|'+c.artist).toLowerCase();
 const VK=new Set();
+const PAL=(()=>{try{return JSON.parse(localStorage.getItem('drops-pal'))||{}}catch(e){return{}}})();
+const savePAL=()=>{try{localStorage.setItem('drops-pal',JSON.stringify(PAL))}catch(e){}};
+const palOf=c=>{const p=c.r===3&&PAL[vkey(c)];return p&&p.length?p:null};
+function boost(r,g,b){const mx=Math.max(r,g,b),mn=Math.min(r,g,b),df=mx-mn;let h=df?(mx===r?((g-b)/df+6)%6:mx===g?(b-r)/df+2:(r-g)/df+4):0;h*=60;const f=n=>{const k=(n+h/30)%12,v=.55-.3825*Math.max(-1,Math.min(k-3,9-k,1));return Math.round(v*255).toString(16).padStart(2,'0')};return'#'+f(0)+f(8)+f(4)}
+// Ambilight-Palette: dominante, kräftige Farben aus 5 Frames des hochgeladenen Videos
+function vidPal(file){return new Promise(res=>{
+  const v=document.createElement('video'),u=URL.createObjectURL(file),cv=document.createElement('canvas'),N=32;cv.width=cv.height=N;
+  const x=cv.getContext('2d',{willReadFrequently:true}),bins=Array.from({length:12},()=>({w:0,r:0,g:0,b:0}));let ts=[],i=0,fin=false;
+  const end=o=>{if(fin)return;fin=true;URL.revokeObjectURL(u);res(o)};
+  v.muted=true;v.playsInline=true;v.preload='auto';v.src=u;
+  v.onloadedmetadata=()=>{const d=v.duration||1;ts=[.08,.3,.5,.7,.92].map(f=>Math.min(d*f,Math.max(d-.05,0)));v.currentTime=ts[0]};
+  v.onseeked=()=>{
+    try{x.drawImage(v,0,0,N,N);const d=x.getImageData(0,0,N,N).data;
+      for(let k=0;k<d.length;k+=4){const r=d[k]/255,g=d[k+1]/255,b=d[k+2]/255,mx=Math.max(r,g,b),mn=Math.min(r,g,b),l=(mx+mn)/2,df=mx-mn;if(df<.12||l<.1||l>.93)continue;const sat=1-Math.abs(2*l-1),h=mx===r?((g-b)/df+6)%6:mx===g?(b-r)/df+2:(r-g)/df+4,bn=bins[Math.floor(h*2)%12],w=(df/sat)*sat+.05;bn.w+=w;bn.r+=r*w;bn.g+=g*w;bn.b+=b*w}
+    }catch(e){return end(null)}
+    if(++i<ts.length)v.currentTime=ts[i];
+    else{const top=bins.filter(b=>b.w>0).sort((a,b)=>b.w-a.w).slice(0,4);end(top.length?top.map(b=>boost(b.r/b.w,b.g/b.w,b.b/b.w)):null)}
+  };
+  v.onerror=()=>end(null);setTimeout(()=>end(null),9000);
+})}
 vdb().then(d=>{const q=d.transaction('v').objectStore('v').getAllKeys();q.onsuccess=()=>{q.result.forEach(k=>VK.add(k));if(VK.size&&tab!==2&&!/INPUT|TEXTAREA/.test(document.activeElement.tagName))render()}}).catch(()=>{});
 async function playVid(c){
   const k=vkey(c);let u=CANVAS[c.id]||CANVAS[k],b=null;
   try{b=await vidGet(k)}catch(e){}
+  if(b&&c.r===3&&PAL[k]===undefined){PAL[k]=await vidPal(b)||[];savePAL();if(curC===c&&PAL[k].length){showCard(c,$('#msg').textContent);return}}
   if(b)u=URL.createObjectURL(b);
   const av=$('#avd');av.hidden=!isAdm();av.dataset.k=k;$('#avx').hidden=!b;
   const im=$('#big .card img');
@@ -532,9 +564,9 @@ $('#avf').addEventListener('change',async e=>{
   const f=e.target.files[0];e.target.value='';
   if(!f||!isAdm())return;
   if(f.size>60e6){toast('Video zu groß (max. 60 MB)');return}
-  try{await vidPut($('#avd').dataset.k,f);VK.add($('#avd').dataset.k);showCard(curC,'Video gespeichert')}catch(err){toast('Video konnte nicht gespeichert werden')}
+  try{const k=$('#avd').dataset.k;await vidPut(k,f);VK.add(k);toast('Analysiere Videofarben …');PAL[k]=await vidPal(f)||[];savePAL();showCard(curC,'Video gespeichert')}catch(err){toast('Video konnte nicht gespeichert werden')}
 });
-$('#avx').onclick=async()=>{if(!isAdm())return;await vidDel($('#avd').dataset.k);VK.delete($('#avd').dataset.k);showCard(curC,'Video entfernt')};
+$('#avx').onclick=async()=>{if(!isAdm())return;await vidDel($('#avd').dataset.k);VK.delete($('#avd').dataset.k);delete PAL[$('#avd').dataset.k];savePAL();showCard(curC,'Video entfernt')};
 $('#t3').onclick=()=>{view=null;tab=3;render()};
 // Tagesserie: +1 pro Tag, bei einem verpassten Tag zurück auf 1
 (function(){const t=dayKey(),y=new Date(Date.now()-864e5).toISOString().slice(0,10);if(S.last!==t){S.streak=S.last===y?(S.streak||0)+1:1;S.last=t;save()}})();
@@ -625,11 +657,11 @@ async function openDrop(){
 
 // ===== Profil mit Showcase, Inventar und Teilen-Link =====
 S.show=S.show||[];let view=null,edit=false,invAll=false;
-const tile=c=>{const r=R[tierOf(c)];return `<div class="tile${edit&&!view&&S.show.includes(c.id)?' pin':''}" style="--c1:${r.c}" data-r="${c.r}" data-t="${tierOf(c)}" data-${edit&&!view?'pin':'open'}="${c.id}"><img src="${esc(c.cover)}" alt="" loading="lazy">${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}<div class="tt"><b>${esc(c.title)}</b><span class="chip rar" style="--c1:${r.c};--c2:${r.d}">${c.r===3?'Epic':r.n}</span></div></div>`};
+const tile=c=>{const r=R[tierOf(c)],pl=palOf(c);return `<div class="tile${edit&&!view&&S.show.includes(c.id)?' pin':''}${pl?' pal':''}" style="--c1:${pl?pl[0]:r.c}" data-r="${c.r}" data-t="${tierOf(c)}" data-${edit&&!view?'pin':'open'}="${c.id}"><img src="${esc(c.cover)}" alt="" loading="lazy">${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}<div class="tt"><b>${esc(c.title)}</b><span class="chip rar" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}">${c.r===3?'Epic':r.n}</span></div></div>`};
 const ICG='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M6.5 3h11L22 9l-10 12L2 9z"/></svg>',ICN='<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="7" cy="18" r="3.2"/><circle cx="18" cy="16" r="3.2"/><path d="M9.2 4.2 20.2 2v14h-2V5.6L11.2 7V18h-2z"/></svg>',ICP='<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>';
 function rowHTML(c,V){
-  const t=tierOf(c),r=R[t],pin=edit&&!V;
-  return `<div class="crow ${c.r===3?'glow':'flat'}${pin&&S.show.includes(c.id)?' pin':''}" data-t="${t}" style="--c1:${r.c};--c2:${r.d}" data-${pin?'pin':'open'}="${c.id}"><div class="cv"><img src="${esc(c.cover)}" alt="" loading="lazy">${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}</div><div class="ct"><b>${esc(c.title)}</b><span>${esc(c.artist)}</span><i class="pl">${ICG}${c.r===3?'Epic':r.n}</i></div>${c.preview?`<button class="cp" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${ICP}</button>`:''}</div>`;
+  const t=tierOf(c),r=R[t],pl=palOf(c),pin=edit&&!V;
+  return `<div class="crow ${c.r===3?'glow':'flat'}${pl?' pal':''}${pin&&S.show.includes(c.id)?' pin':''}" data-t="${t}" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}${pl?`;--s:${pl.join(',')},${pl[0]}`:''}" data-${pin?'pin':'open'}="${c.id}"><div class="cv"><img src="${esc(c.cover)}" alt="" loading="lazy">${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}</div><div class="ct"><b>${esc(c.title)}</b><span>${esc(c.artist)}</span><i class="pl">${ICG}${c.r===3?'Epic':r.n}</i></div>${c.preview?`<button class="cp" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${ICP}</button>`:''}</div>`;
 }
 function collHTML(inv,V){
   const pin=edit&&!V,l=invAll||pin?inv:inv.slice(0,8);
