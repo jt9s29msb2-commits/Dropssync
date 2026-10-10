@@ -329,12 +329,52 @@ nav button{font-size:12px}
 .crow.glow.pal .pl{background:linear-gradient(100deg,var(--c1),var(--c2))}
 .tile.pal{animation:none!important}
 .frame.ep.has-amb:not(.flat)::before{animation:spin 5s linear infinite;opacity:.4}
+/* ===== Map im soundmap-Look ===== */
+:root{--mf:invert(1) hue-rotate(180deg) brightness(1.4) saturate(.65)}
+#map{background:#1a1b1e}
+#map .leaflet-tile-pane{filter:var(--mf)}
+#map .dropm{width:30px;height:30px;box-shadow:0 2px 6px rgba(0,0,0,.5)}
+#map .dropm svg{width:17px;height:17px}
+#map .dropm.sel{transform:scale(1.35)}
+.me{width:22px;height:22px;border:3px solid #fff;background:#2f7bff;box-shadow:0 0 0 8px rgba(47,123,255,.22),0 2px 8px rgba(0,0,0,.5)}
+#shop,#fcb,#gm{position:absolute;z-index:500;right:14px;width:56px;height:60px;padding:0;border:0;border-radius:15px;background:#1a1a1d;color:#fff;font-family:inherit;font-size:11px;font-weight:600;line-height:1.1;text-align:center;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;box-shadow:0 4px 0 #08080a,0 7px 12px rgba(0,0,0,.45)}
+#gm{bottom:20px}#fcb{bottom:92px}#shop{bottom:164px}
+#shop svg,#fcb svg,#gm svg{width:24px;height:24px;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+#shop svg{stroke:#4ade80}#fcb svg{stroke:#ffb627}#gm svg{stroke:#ff5a5a}
+.bdg{position:absolute;top:-7px;right:-7px;min-width:20px;height:20px;padding:0 5px;border-radius:99px;background:#ff3d3d;color:#fff;font-size:12px;font-style:normal;font-weight:800;display:grid;place-items:center}
+#loc,#scan{bottom:20px;height:60px;background:#1a1a1d;box-shadow:0 4px 0 #08080a,0 7px 12px rgba(0,0,0,.45)}
+#loc{left:14px;width:56px;border-radius:15px;color:#fff}
+#scan{color:#a3a5ac;font-size:19px;padding:0 32px}
+#scan.cd{background:#1a1a1d;color:#a3a5ac;box-shadow:0 4px 0 #08080a;opacity:.55}
+#sheet{bottom:96px}
+/* ===== Free Crates ===== */
+#fc{position:fixed;inset:0;z-index:1900;background:rgba(0,0,0,.6);display:flex;align-items:flex-end}
+#fc>div{width:100%;max-height:84vh;overflow:auto;background:#17181c;border-radius:26px 26px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom))}
+.fct{display:flex;justify-content:space-between;align-items:center}.fct h3{font-size:26px;font-weight:800}
+.fcs{color:var(--mute);margin:2px 0 14px}
+.fcg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.fcb2{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px;border:0;border-radius:18px;background:color-mix(in srgb,var(--c1) 30%,#1b1c21);color:var(--ink);font-size:18px;font-weight:700;text-align:left;box-shadow:inset 0 0 0 1.5px color-mix(in srgb,var(--c1) 65%,transparent);opacity:.6}
+.fcb2.rdy{opacity:1}
+.fcb2 svg{width:28px;height:28px;color:#fff;margin-bottom:4px}
+.fcb2 small{font-size:14px;font-weight:600;color:var(--mute)}.fcb2.rdy small{color:#fff}
+/* ===== Duo Epic ===== */
+@keyframes duoA{0%,40%{opacity:1}50%,90%{opacity:0}100%{opacity:1}}
+@keyframes duoB{0%,40%{opacity:0}50%,90%{opacity:1}100%{opacity:0}}
+@keyframes duoG{0%,40%,100%{box-shadow:0 0 40px 0 rgba(255,61,90,.55)}50%,90%{box-shadow:0 0 40px 0 rgba(58,160,255,.55)}}
+img.d1{animation:duoA 8s ease-in-out infinite}
+img.d2{position:absolute;inset:0;opacity:0;animation:duoB 8s ease-in-out infinite}
+.dl{position:absolute;z-index:2;left:5cqw;top:5.3cqw;padding:1cqw 3.2cqw;border-radius:99px;background:rgba(0,0,0,.55);color:#fff;font-size:3.6cqw;font-weight:800;line-height:1.2}
+.dl1{animation:duoA 8s ease-in-out infinite}.dl2{opacity:0;animation:duoB 8s ease-in-out infinite}
+.frame.ep.duo{--stops:#ff3d5a,#3aa0ff,#ff3d5a,#3aa0ff,#ff3d5a;--hi:#fff;animation:duoG 8s ease-in-out infinite}
+#ov .frame.ep.duo{animation:epicspin 1.5s cubic-bezier(.2,.8,.2,1),duoG 8s ease-in-out 1.5s infinite}
+.frame.ep.duo .card.epic .chip.rar{background:linear-gradient(100deg,#ff3d5a,#3aa0ff);color:#fff}
+@media (prefers-reduced-motion:reduce){img.d1,img.d2,.dl1,.dl2,.frame.ep.duo,#ov .frame.ep.duo{animation:none}}
 </style>
 </head>
 <body>
 <header><div class="hs"><span>🔥 <b id="streak">1</b></span><span><svg viewBox="0 0 24 24" width="22" height="22" fill="#2ee08a"><path d="M3 18h18l1-11-5 4-5-7-5 7-5-4z"/></svg><b id="lv">Lv. 1</b></span></div><div class="hs"><span><i></i><b id="coins">0</b><em class="plus">+</em></span></div></header>
 <main id="main"></main>
-<div id="mapwrap" hidden><div id="map"></div><button id="tb"></button><button id="loc" aria-label="Meine Position"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></button><button id="scan" aria-label="Gebiet scannen">Gebiet scannen</button><button id="shop" aria-label="Shop"><svg viewBox="0 0 24 24"><path d="M4 10v10h16V10M3 10l2-6h14l2 6zM9 20v-5h6v5"/></svg>Shop</button><div id="sheet" hidden></div></div>
+<div id="mapwrap" hidden><div id="map"></div><button id="tb"></button><button id="loc" aria-label="Meine Position"><svg viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg></button><button id="scan" aria-label="Gebiet scannen">Gebiet scannen</button><button id="shop" aria-label="Shop"><svg viewBox="0 0 24 24"><path d="M4 10v10h16V10M3 10l2-6h14l2 6zM9 20v-5h6v5"/></svg>Shop</button><button id="fcb" aria-label="Free Crates"><svg viewBox="0 0 24 24"><path d="M3 8l9-5 9 5v8l-9 5-9-5zM3 8l9 5 9-5M12 13v8"/></svg>Free Crates<i class="bdg" id="fcn" hidden>0</i></button><button id="gm" aria-label="Game"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="12" rx="5"/><path d="M7 10v6M4 13h6M16 12h.01M19 14h.01"/></svg>Game</button><div id="sheet" hidden></div></div>
 <nav>
 <button id="t2"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg>Map</button>
 <button id="t1"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="12" height="14" rx="2"/><path d="M8 3h10a2 2 0 0 1 2 2v12"/></svg>Sammlung</button>
@@ -346,6 +386,7 @@ nav button{font-size:12px}
 <div id="auth" hidden><h1>Drops</h1><p id="am"></p><input id="au" placeholder="Benutzername" autocomplete="username" maxlength="20"><input id="ap" type="password" placeholder="Passwort (mind. 6 Zeichen)"><button class="btn" id="ago" style="height:50px"></button><button class="ghost" id="asw" style="width:auto;height:42px;border-radius:14px;padding:0 14px"></button><button class="ghost" id="afg" style="width:auto;height:42px;border-radius:14px;padding:0 14px">Passwort vergessen?</button>
 <div id="rs" hidden style="display:flex;flex-direction:column;gap:10px"><p class="gs">Tippe auf deinen Account und lege ein neues Passwort fest.</p><div class="chs" id="rl"></div><input id="rp" type="password" placeholder="Neues Passwort (mind. 6 Zeichen)" autocomplete="new-password"><input id="rp2" type="password" placeholder="Neues Passwort wiederholen" autocomplete="new-password"><button class="btn" id="rgo" style="height:50px">Passwort speichern</button><button class="ghost" id="rbk" style="width:auto;height:42px;border-radius:14px;padding:0 14px">Zurück</button></div></div>
 <div id="ov"><div id="msg"></div><div id="big"></div><button id="qs" hidden></button><div id="avd" hidden><label class="btn">🎬 Video hochladen<input id="avf" type="file" accept="video/*" hidden></label><button id="avx" hidden>Video entfernen</button></div></div>
+<div id="fc" hidden></div>
 <div id="toast"></div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
 <script>
@@ -369,7 +410,7 @@ const $=s=>document.querySelector(s);
 function rarityOf(id){const h=Math.imul(id|0,2654435761)>>>0;const n=Math.floor(h/4294967296*100);return n<55?0:n<80?1:n<94?2:3}
 
 // Nummerierte Epics haben eine Stufe (Common/Uncommon/Rare), fest aus der Song-ID berechnet
-function tierOf(c){if(c.r!==3)return c.r;const n=Math.floor((Math.imul((c.id|0)^0x5bd1e995,2654435761)>>>0)/4294967296*100);return n<55?0:n<85?1:2}
+function tierOf(c){if(c.r!==3)return c.r;if(c.duo)return 0;const n=Math.floor((Math.imul((c.id|0)^0x5bd1e995,2654435761)>>>0)/4294967296*100);return n<55?0:n<85?1:2}
 function epicHTML(c,mini){
   const tr=tierOf(c),r=R[tr],pl=palOf(c);
   let n=c.no||0;try{n=Math.max(n,ED[c.id]||0)}catch(e){}
@@ -377,7 +418,7 @@ function epicHTML(c,mini){
   const note='<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="7" cy="18" r="3.2"/><circle cx="18" cy="16" r="3.2"/><path d="M9.2 4.2 20.2 2v14h-2V5.6L11.2 7V18h-2z"/></svg>';
   const cnt='<svg viewBox="0 0 24 24"><path fill="currentColor" fill-rule="evenodd" d="M5 5h14a3 3 0 0 1 3 3v8a3 3 0 0 1-3 3H5a3 3 0 0 1-3-3V8a3 3 0 0 1 3-3zm2.5 5.5a1.5 1.5 0 0 0 0 3h9a1.5 1.5 0 0 0 0-3z"/></svg>';
   const tri='<svg viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>';
-  return `<div class="frame ep${c.r===3?'':' flat'}${pl?' pal':''} ${mini?'s':''}" data-r="${c.r}" data-t="${tr}" data-open="${c.id}" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}${pl?`;--stops:${pl.join(',')},${pl[0]};--gh:${pl[0]}99`:''}"><div class="card epic${VK.has(vkey(c))?' vid':''}"><img src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}"><div class="shade"></div>${c.no?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p><div class="chips"><span class="chip rar">${gem}${c.r===3?'Epic':r.n}</span><span class="chip gen">${note}<span>${esc(c.genre)}</span></span>${n&&c.r===3?`<span class="chip cnt">${cnt}${n}</span>`:''}</div></div>${c.preview?`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${tri}</button>`:''}</div></div>`;
+  return `<div class="frame ep${c.r===3?'':' flat'}${pl?' pal':''}${c.duo?' duo':''} ${mini?'s':''}" data-r="${c.r}" data-t="${tr}" data-open="${c.id}" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}${pl?`;--stops:${pl.join(',')},${pl[0]};--gh:${pl[0]}99`:''}"><div class="card epic${VK.has(vkey(c))?' vid':''}"><img${c.duo?' class="d1"':''} src="${esc(c.cover)}" alt="Cover von ${esc(c.title)}">${c.duo?`<img class="d2" src="${esc(c.cover2)}" alt="">`:''}<div class="shade"></div>${c.duo?'<span class="dl dl1">Standard</span><span class="dl dl2">Deluxe</span>':''}${c.no?`<span class="no">#${c.no}</span>`:''}<div class="info"><h3>${esc(c.title)}</h3><p>${esc(c.artist)}</p><div class="chips"><span class="chip rar">${gem}${c.duo?'Duo Epic':c.r===3?'Epic':r.n}</span><span class="chip gen">${note}<span>${esc(c.genre)}</span></span>${n&&c.r===3?`<span class="chip cnt">${cnt}${n}</span>`:''}</div></div>${c.preview?`<button class="play" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${tri}</button>`:''}</div></div>`;
 }
 
 function cardHTML(c,mini){
@@ -452,7 +493,7 @@ $('#t2').onclick=()=>{tab=2;render()};
 
 // ===== Map mit Drops =====
 const TERMS=['pop','rock','hip hop','jazz','electronic','indie','r&b','latin','soul','reggae','dance','metal','country','k-pop','funk'];
-const HOME=[52.52,13.405],CELL=0.005,RADIUS=50;
+const HOME=[52.52,13.405],CELL=0.002,RADIUS=50;
 let map,layer,meDot,meCircle,pos=null,test=false,sel=null,drops=[],lastCell='',dropBusy=false;
 const dayKey=()=>new Date().toISOString().slice(0,10);
 function hashStr(s){let h=2166136261;for(const ch of s)h=Math.imul(h^ch.charCodeAt(0),16777619);return h>>>0}
@@ -461,7 +502,7 @@ function dist(a,b){const r=x=>x*Math.PI/180,p=r(b[0]-a[0]),l=r(b[1]-a[1]);const 
 function mapSong(x){return{id:x.trackId,title:x.trackName,artist:x.artistName,genre:x.primaryGenreName||'Musik',year:(x.releaseDate||'').slice(0,4),cover:x.artworkUrl100.replace('100x100','600x600'),preview:x.previewUrl||''}}
 function addCard(c,msg){
   if(c.r===3){
-    const ah=c.title==='After Hours'&&/weeknd/i.test(c.artist);
+    const ah=!c.duo&&c.title==='After Hours'&&/weeknd/i.test(c.artist);
     if(ah&&USER==='theweeknd'&&c.no===1)ED[c.id]=Math.max(ED[c.id]||0,1);
     else c.no=ED[c.id]=Math.max((ED[c.id]||0)+1,ah?2:1);
     saveED();
@@ -471,7 +512,7 @@ function addCard(c,msg){
 // Drops entstehen aus Tag + Gitterzelle: gleiche Orte zeigen allen Spielern dieselben Drops
 function genDrops(center){
   const cx=Math.floor(center[0]/CELL),cy=Math.floor(center[1]/CELL),done=S.opened||[],out=[];
-  for(let x=cx-1;x<=cx+1;x++)for(let y=cy-1;y<=cy+1;y++)for(let i=0;i<2;i++){
+  for(let x=cx-2;x<=cx+2;x++)for(let y=cy-2;y<=cy+2;y++)for(let i=0;i<3;i++){
     const id=`${dayKey()}:${x}:${y}:${i}`;if(done.includes(id))continue;
     const r=rng(hashStr(id)),lat=(x+r())*CELL,lng=(y+r())*CELL,n=r()*100;
     out.push({id,lat,lng,tier:n<55?0:n<80?1:n<99.9?2:3});
@@ -483,7 +524,7 @@ function genDrops(center){
 function refreshDrops(){
   if(!map)return;
   drops=genDrops(pos||HOME);layer.clearLayers();
-  drops.forEach(d=>L.marker([d.lat,d.lng],{icon:L.divIcon({className:'',html:`<div class="dropm${d.tier===3?' ep':''}" style="--c1:${gcol(d)}"><svg viewBox="0 0 24 24"><path d="M9 3v10.3A3.5 3.5 0 1 0 11 16.5V7h6V3z"/></svg></div>`,iconSize:[44,44]})}).on('click',ev=>{sel=d;markSel(ev.target);updateSheet()}).addTo(layer));
+  drops.forEach(d=>L.marker([d.lat,d.lng],{icon:L.divIcon({className:'',html:`<div class="dropm${d.tier===3?' ep':''}" style="--c1:${gcol(d)}"><svg viewBox="0 0 24 24"><circle cx="7" cy="18" r="3.2"/><circle cx="18" cy="16" r="3.2"/><path d="M9.2 4.2 20.2 2v14h-2V5.6L11.2 7V18h-2z"/></svg></div>`,iconSize:[44,44]})}).on('click',ev=>{sel=d;markSel(ev.target);updateSheet()}).addTo(layer));
 }
 function markSel(m){document.querySelectorAll('.dropm.sel').forEach(x=>x.classList.remove('sel'));const e=m&&m.getElement&&m.getElement();if(e&&e.firstChild)e.firstChild.classList.add('sel')}
 function updateSheet(){
@@ -491,15 +532,15 @@ function updateSheet(){
   if(!sel){s.hidden=true;markSel(null);return}
   const dd=pos?Math.round(dist(pos,[sel.lat,sel.lng])):null,can=test||(dd!==null&&dd<=RADIUS),t=R[sel.tier];
   s.hidden=false;
-  s.innerHTML=`<div class="sd${sel.tier===3?' ep':''}" style="--c1:${gcol(sel)}"><svg viewBox="0 0 24 24"><path d="M9 3v10.3A3.5 3.5 0 1 0 11 16.5V7h6V3z"/></svg></div><div class="t"><b>${sel.tier===3?'Epic Drop':'Drop'} · ${dropGenre(sel)}</b><small>${dd===null?'Position wird gesucht …':dd+' m entfernt'}${can?'':`. Komm näher als ${RADIUS} m.`}</small></div><button class="btn" style="height:42px" data-drop ${can&&!dropBusy?'':'disabled'}>Öffnen</button>`;
+  s.innerHTML=`<div class="sd${sel.tier===3?' ep':''}" style="--c1:${gcol(sel)}"><svg viewBox="0 0 24 24"><circle cx="7" cy="18" r="3.2"/><circle cx="18" cy="16" r="3.2"/><path d="M9.2 4.2 20.2 2v14h-2V5.6L11.2 7V18h-2z"/></svg></div><div class="t"><b>${sel.tier===3?'Epic Drop':'Drop'} · ${dropGenre(sel)}</b><small>${dd===null?'Position wird gesucht …':dd+' m entfernt'}${can?'':`. Komm näher als ${RADIUS} m.`}</small></div><button class="btn" style="height:42px" data-drop ${can&&!dropBusy?'':'disabled'}>Öffnen</button>`;
 }
 function setTb(){const b=$('#tb');b.innerHTML='Test<br>'+(test?'an':'aus');b.className=test?'on':''}
 function onPos(p){
   pos=[p.coords.latitude,p.coords.longitude];
   if(!meDot){
     meDot=L.marker(pos,{icon:L.divIcon({className:'',html:'<div class="me"></div>',iconSize:[16,16]}),interactive:false}).addTo(map);
-    meCircle=L.circle(pos,{radius:RADIUS,color:'#3aa0ff',weight:1,fillOpacity:.08,interactive:false}).addTo(map);
-    map.setView(pos,16);
+    meCircle=L.circle(pos,{radius:RADIUS,color:'#2f9bff',weight:2,fillColor:'#3aa0ff',fillOpacity:.22,interactive:false}).addTo(map);
+    map.setView(pos,18);
   }else{meDot.setLatLng(pos);meCircle.setLatLng(pos)}
   const k=Math.floor(pos[0]/CELL)+':'+Math.floor(pos[1]/CELL);
   if(k!==lastCell){lastCell=k;refreshDrops()}
@@ -510,12 +551,12 @@ function initMap(){
   if(!map){
     map=L.map('map',{zoomControl:false,attributionControl:false}).setView(HOME,16);
     L.control.attribution({position:'topleft',prefix:false}).addTo(map);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap © CARTO'}).addTo(map);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager_nolabels/{z}/{x}/{y}{r}.png',{subdomains:'abcd',maxZoom:19,attribution:'© OpenStreetMap © CARTO'}).addTo(map);
     layer=L.layerGroup().addTo(map);
     map.on('click',()=>{sel=null;updateSheet()});loadPool();
     $('#scan').onclick=scan;
     $('#tb').onclick=()=>{test=!test;setTb();updateSheet()};
-    $('#loc').onclick=()=>{if(pos)map.setView(pos,17);else toast('Position wird noch gesucht')};
+    $('#loc').onclick=()=>{if(pos)map.setView(pos,18);else toast('Position wird noch gesucht')};
     setTb();refreshDrops();
     if('geolocation' in navigator)navigator.geolocation.watchPosition(onPos,onErr,{enableHighAccuracy:true,maximumAge:5000});
     else onErr();
@@ -558,7 +599,7 @@ async function playVid(c){
   if(b)u=URL.createObjectURL(b);
   const av=$('#avd');av.hidden=!isAdm();av.dataset.k=k;$('#avx').hidden=!b;
   const im=$('#big .card img');
-  if(u&&im&&curC===c){const cd=im.closest('.card');im.outerHTML=`<video src="${esc(u)}" autoplay loop muted playsinline></video>`;cd.classList.add('vid');if(c.r===3){const fr=cd.closest('.frame');if(fr&&!fr.querySelector('.amb')){const a=document.createElement('video');a.className='amb';a.src=u;a.muted=a.loop=a.autoplay=a.playsInline=true;a.setAttribute('aria-hidden','true');fr.prepend(a);a.play().catch(()=>{});fr.classList.add('has-amb')}}}
+  if(u&&im&&curC===c&&!c.duo){const cd=im.closest('.card');im.outerHTML=`<video src="${esc(u)}" autoplay loop muted playsinline></video>`;cd.classList.add('vid');if(c.r===3){const fr=cd.closest('.frame');if(fr&&!fr.querySelector('.amb')){const a=document.createElement('video');a.className='amb';a.src=u;a.muted=a.loop=a.autoplay=a.playsInline=true;a.setAttribute('aria-hidden','true');fr.prepend(a);a.play().catch(()=>{});fr.classList.add('has-amb')}}}
 }
 $('#avf').addEventListener('change',async e=>{
   const f=e.target.files[0];e.target.value='';
@@ -632,6 +673,8 @@ async function openDrop(){
   const d=sel;if(!d||dropBusy)return;
   dropBusy=true;updateSheet();
   try{
+    const dc=await takeDuo();
+    if(dc){S.opened=(S.opened||[]).concat(d.id).slice(-300);sel=null;addCard(dc,duoMsg());refreshDrops();return}
     const r=rng(hashStr(d.id+'s')),own=new Set(S.cards.map(c=>c.id));let s,top=0;
     if(d.first){
       const j=await(await fetch('https://itunes.apple.com/search?term=the+weeknd+after+hours&entity=song&limit=25&country=de')).json();
@@ -657,11 +700,12 @@ async function openDrop(){
 
 // ===== Profil mit Showcase, Inventar und Teilen-Link =====
 S.show=S.show||[];let view=null,edit=false,invAll=false;
-const tile=c=>{const r=R[tierOf(c)],pl=palOf(c);return `<div class="tile${edit&&!view&&S.show.includes(c.id)?' pin':''}${pl?' pal':''}" style="--c1:${pl?pl[0]:r.c}" data-r="${c.r}" data-t="${tierOf(c)}" data-${edit&&!view?'pin':'open'}="${c.id}"><img src="${esc(c.cover)}" alt="" loading="lazy">${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}<div class="tt"><b>${esc(c.title)}</b><span class="chip rar" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}">${c.r===3?'Epic':r.n}</span></div></div>`};
+if(USER==='theweeknd'&&S.duoNext===undefined&&!S.duoDone){S.duoNext=1;save()}
+const tile=c=>{const r=R[tierOf(c)],pl=palOf(c);return `<div class="tile${edit&&!view&&S.show.includes(c.id)?' pin':''}${pl?' pal':''}" style="--c1:${pl?pl[0]:r.c}" data-r="${c.r}" data-t="${tierOf(c)}" data-${edit&&!view?'pin':'open'}="${c.id}"><img${c.duo?' class="d1"':''} src="${esc(c.cover)}" alt="" loading="lazy">${c.duo?`<img class="d2" src="${esc(c.cover2)}" alt="" loading="lazy">`:''}${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}<div class="tt"><b>${esc(c.title)}</b><span class="chip rar" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}">${c.duo?'Duo Epic':c.r===3?'Epic':r.n}</span></div></div>`};
 const ICG='<svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor"><path d="M6.5 3h11L22 9l-10 12L2 9z"/></svg>',ICN='<svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><circle cx="7" cy="18" r="3.2"/><circle cx="18" cy="16" r="3.2"/><path d="M9.2 4.2 20.2 2v14h-2V5.6L11.2 7V18h-2z"/></svg>',ICP='<svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.7l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>';
 function rowHTML(c,V){
   const t=tierOf(c),r=R[t],pl=palOf(c),pin=edit&&!V;
-  return `<div class="crow ${c.r===3?'glow':'flat'}${pl?' pal':''}${pin&&S.show.includes(c.id)?' pin':''}" data-t="${t}" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}${pl?`;--s:${pl.join(',')},${pl[0]}`:''}" data-${pin?'pin':'open'}="${c.id}"><div class="cv"><img src="${esc(c.cover)}" alt="" loading="lazy">${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}</div><div class="ct"><b>${esc(c.title)}</b><span>${esc(c.artist)}</span><i class="pl">${ICG}${c.r===3?'Epic':r.n}</i></div>${c.preview?`<button class="cp" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${ICP}</button>`:''}</div>`;
+  return `<div class="crow ${c.r===3?'glow':'flat'}${pl?' pal':''}${pin&&S.show.includes(c.id)?' pin':''}" data-t="${t}" style="--c1:${pl?pl[0]:r.c};--c2:${pl?pl[1]||pl[0]:r.d}${pl?`;--s:${pl.join(',')},${pl[0]}`:''}" data-${pin?'pin':'open'}="${c.id}"><div class="cv"><img${c.duo?' class="d1"':''} src="${esc(c.cover)}" alt="" loading="lazy">${c.duo?`<img class="d2" src="${esc(c.cover2)}" alt="" loading="lazy">`:''}${c.r===3&&c.no?`<b class="no">#${c.no}</b>`:''}</div><div class="ct"><b>${esc(c.title)}</b><span>${esc(c.artist)}</span><i class="pl">${ICG}${c.duo?'Duo Epic':c.r===3?'Epic':r.n}</i></div>${c.preview?`<button class="cp" data-play="${esc(c.preview)}" aria-label="Vorschau abspielen">${ICP}</button>`:''}</div>`;
 }
 function collHTML(inv,V){
   const pin=edit&&!V,l=invAll||pin?inv:inv.slice(0,8);
@@ -800,6 +844,8 @@ async function openBox(kind,g,a,price){
   if(S.coins<price){toast(`Dir fehlen ${price-S.coins} Münzen`);return}
   boxBusy=true;toast('Box wird geöffnet …');
   try{
+    const dc=await takeDuo();
+    if(dc){S.coins-=price;addCard(dc,duoMsg());return}
     await loadPool();
     const k=Math.random()*100,tier=kind==='a'?(k<.02?4:k<.1?3:0):(k<55?0:k<80?1:k<99.88?2:k<99.98?3:4),lst=POOL[g]||[];
     if(kind==='g')a=lst[Math.floor(Math.random()*Math.min([50,30,15,5,3][tier],lst.length||1))]||'';
@@ -813,8 +859,59 @@ async function openBox(kind,g,a,price){
   finally{boxBusy=false}
 }
 
+// ===== Duo Epic: wechselt zwischen Standard- und Deluxe-Album =====
+const duoMsg=()=>`Duo Epic! After Hours · Standard + Deluxe. +${R[3].coins} Münzen`;
+async function duoAH(){
+  const q=u=>fetch(u).then(r=>r.json()).then(j=>j.results||[]);
+  const al=(await q('https://itunes.apple.com/search?term=the+weeknd+after+hours&entity=album&limit=25&country=de')).filter(x=>/weeknd/i.test(x.artistName)&&/^after hours/i.test(x.collectionName));
+  const std=al.find(x=>/^after hours$/i.test(x.collectionName)),dlx=al.find(x=>/deluxe/i.test(x.collectionName));
+  if(!std||!dlx)throw 0;
+  const t=(await q(`https://itunes.apple.com/lookup?id=${dlx.collectionId}&entity=song&country=de`)).find(x=>x.wrapperType==='track'&&x.trackName==='After Hours');
+  if(!t)throw 0;
+  const art=a=>a.artworkUrl100.replace('100x100','600x600');
+  return{...mapSong(t),cover:art(std),cover2:art(dlx),duo:1,r:3,at:Date.now(),no:0,top:1};
+}
+async function takeDuo(){if(!S.duoNext)return null;const c=await duoAH();S.duoNext=0;S.duoDone=1;return c}
+// ===== Free Crates: pro Genre alle 15 Minuten gratis =====
+const FC_CD=15*6e4,FCG=[['Pop',132],['Hip-Hop',116],['Rock',152],['Alternative',85],['R&B',165],['Electronic',106],['Latin',197],['Dance',113]];
+const GP=(()=>{try{return JSON.parse(localStorage.getItem('drops-gp'))||{}}catch(e){return{}}})();
+const fcLeft=g=>Math.max(0,((S.fc||{})[g]||0)+FC_CD-Date.now());
+const fmtT=ms=>{const t=Math.ceil(ms/1000);return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
+let fcBusy=false;
+async function fcOpen(g){
+  if(fcBusy)return;
+  const l=fcLeft(g);if(l>0){toast(`${g}-Crate in ${fmtT(l)}`);return}
+  fcBusy=true;toast('Crate wird geöffnet …');
+  try{
+    const dc=await takeDuo();
+    if(dc){(S.fc=S.fc||{})[g]=Date.now();addCard(dc,duoMsg());return}
+    if(!(GP[g]||[]).length){const id=FCG.find(x=>x[0]===g)[1],j=await jsonp(`https://api.deezer.com/chart/${id}/artists?limit=50`),ar=((j&&j.data)||[]).map(x=>x.name);if(ar.length){GP[g]=ar;try{localStorage.setItem('drops-gp',JSON.stringify(GP))}catch(e){}}}
+    const lst=GP[g]||[];if(!lst.length){toast('Artists werden geladen. Versuch es gleich nochmal.');return}
+    const own=new Set(S.cards.map(c=>c.id));let sg=null,a='';
+    for(let n=0;n<3&&!sg;n++){a=lst[Math.floor(Math.random()*lst.length)];sg=await discoSong(a,Math.random,own)}
+    if(!sg){toast('Die Crate war leer. Versuch es nochmal.');return}
+    const c={...sg,r:await rarOf(sg.artist,0,sg.title),at:Date.now(),top:lst.indexOf(a)+1};
+    (S.fc=S.fc||{})[g]=Date.now();
+    addCard(c,`${g}-Crate: ${R[c.r].n}! +${R[c.r].coins} Münzen`);
+  }catch(e){toast('Crate konnte nicht geöffnet werden. Versuch es nochmal.')}
+  finally{fcBusy=false;fcTick()}
+}
+const ICX='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8l9-5 9 5v8l-9 5-9-5zM3 8l9 5 9-5M12 13v8"/></svg>';
+function fcRender(){
+  $('#fc').innerHTML=`<div><div class="fct"><h3>Free Crates</h3><button class="ghost" data-fcx aria-label="Schließen">✕</button></div><p class="fcs">Pro Genre alle 15 Minuten eine kostenlose Crate.</p><div class="fcg">${FCG.map(([g])=>`<button class="fcb2" data-fc="${esc(g)}" style="--c1:${GCOL[g]||'#8a90a0'}">${ICX}<span>${esc(g)}</span><small data-fct="${esc(g)}"></small></button>`).join('')}</div></div>`;fcTick();
+}
+function fcTick(){
+  let n=0;FCG.forEach(([g])=>{const l=fcLeft(g),ok=l<=0;if(ok)n++;const e=document.querySelector(`[data-fct="${g}"]`);if(e){e.textContent=ok?'Bereit':fmtT(l);e.parentElement.classList.toggle('rdy',ok)}});
+  const b=$('#fcn');b.textContent=n;b.hidden=!n;
+}
+const fcShow=on=>{$('#fc').hidden=!on;if(on)fcRender()};
+$('#fcb').onclick=()=>fcShow(true);
+$('#gm').onclick=()=>$('#t6').click();
+$('#fc').onclick=e=>{const b=e.target.closest('[data-fc]');if(b){fcOpen(b.dataset.fc);return}if(e.target.id==='fc'||e.target.closest('[data-fcx]'))fcShow(false)};
+setInterval(fcTick,1000);fcTick();
+
 // ===== Marker-Farben nach Genre (Indie läuft über die Alternative-Charts) =====
-const GCOL={'Hip-Hop':'#c25200','Pop':'#0b49b0','Electronic':'#a00014','Alternative':'#10ad66'},GREY='#666b78';
+const GCOL={'Hip-Hop':'#c25200','Pop':'#0b49b0','Electronic':'#a00014','Alternative':'#10ad66','R&B':'#a8139f','Latin':'#c4d41a','Dance':'#12d6cf','Rock':'#1d8f8f'},GREY='#666b78';
 const MG=['Pop','Hip-Hop','Rock','Alternative','R&B','Electronic','Latin','Dance'],dropGenre=d=>d.first?'R&B':MG[Math.floor(rng(hashStr(d.id+'s'))()*MG.length)];
 const gcol=d=>GCOL[dropGenre(d)]||GREY;
 $('#shop').onclick=()=>{tab=4;render()};
